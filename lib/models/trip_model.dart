@@ -3,20 +3,17 @@ import 'package:driverapp/models/tripstop_model.dart';
 class TripModel {
   TripModel({
     this.status,
-    this.error,
     this.message,
     this.data,
   });
 
   bool? status;
-  String? error;
   String? message;
   Trip? data;
 
   factory TripModel.fromJson(Map<String, dynamic> json) {
     return TripModel(
       status: json['status'] as bool?,
-      error: json['error']?.toString(),
       message: json['message']?.toString(),
       data: json['data'] != null ? Trip.fromJson(json['data']) : null,
     );
@@ -24,7 +21,6 @@ class TripModel {
 
   Map<String, dynamic> toJson() => {
     'status': status,
-    'error': error,
     'message': message,
     'data': data?.toJson(),
   };
@@ -98,9 +94,10 @@ class Trip {
       payment: json['payment']?.toString(),
       tripStatus: json['trip_status']?.toString(),
       tripType: json['trip_type']?.toString(),
-      tripStops: json['trip_stops'] != null
-          ? List<TripStop>.from(json['trip_stops'].map((stop) => TripStop.fromJson(stop)))
-          : null,
+      tripStops: json['stops'] != null
+          ? List<TripStop>.from(json['stops'].map((stop) => TripStop.fromJson(stop)))
+          : [],
+
     );
   }
 
@@ -125,7 +122,7 @@ class Trip {
       'payment': payment,
       'trip_status': tripStatus,
       'trip_type': tripType,
-      'trip_stops': tripStops?.map((stop) => stop.toJson()).toList(),
+      'stops': tripStops?.map((stop) => stop.toJson()).toList(),
     };
   }
 }

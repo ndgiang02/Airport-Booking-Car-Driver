@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:driverapp/views/auth_screens/signup_screen.dart';
 import 'package:driverapp/views/dashboard.dart';
@@ -123,10 +122,8 @@ class LoginScreen extends StatelessWidget {
                                         'password': _passwordController.text,
                                         'user_type': "driver",
                                       };
-
                                       await controller.loginAPI(bodyParams).then((value) {
                                         if (value != null) {
-                                          log('$value');
                                           if (value.status == true) {
                                             Preferences.setInt(Preferences.userId, value.data!.user!.id!);
                                             Preferences.setString(Preferences.user, jsonEncode(value));

@@ -3,17 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../constant/constant.dart';
-import '../constant/show_dialog.dart';
 import '../controllers/dashboard_controller.dart';
 import '../utils/preferences/preferences.dart';
-import '../utils/themes/contant_colors.dart';
-import '../utils/themes/reponsive.dart';
 
 class Dashboard extends StatelessWidget {
 
   String? name =  Preferences.getString(Preferences.userName);
   String? email =  Preferences.getString(Preferences.userEmail);
-
 
   DateTime backPress = DateTime.now();
 

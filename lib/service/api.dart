@@ -2,7 +2,7 @@ import 'dart:io';
 import '../utils/preferences/preferences.dart';
 
 class API {
-  static const baseUrl = "http://192.168.11.253:8000/api/";
+  static const baseUrl = "http://192.168.11.19:8000/api/";
   static const apiKey = "";
 
   static Map<String, String> authheader = {
@@ -37,7 +37,7 @@ class API {
 
   static const updateStatus = "${baseUrl}driver/update-status";
   static const updateLocation = "${baseUrl}driver/update-location";
-
+  static const acceptTrip = "${baseUrl}driver/accept-trip";
 
   static const updateName = "${baseUrl}user-name";
   static const contactUs = "${baseUrl}contact-us";

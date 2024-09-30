@@ -13,12 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
-import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
-import '../constant/constant.dart';
-import '../constant/show_dialog.dart';
-import '../models/user_model.dart';
-import '../service/api.dart';
 import '../utils/preferences/preferences.dart';
 import '../views/auth_screens/login_screen.dart';
 import '../views/dashboard.dart';
@@ -64,26 +59,6 @@ class DashBoardController extends GetxController {
     ];
   }
 
-  Rx<UserModel> userModel = UserModel().obs;
-
-  /*getUsrData() async {
-    userModel.value = Constant.getUserData();
-    getDrawerItem();
-    Map<String, String> bodyParams = {
-      'phone': userModel.value.data!.mobile.toString(),
-      'user_type': "driver",
-    };
-    final responsePhone = await http.post(Uri.parse(API.getProfileByPhone), headers: API.header, body: jsonEncode(bodyParams));
-    Map<String, dynamic> responseBodyPhone = json.decode(responsePhone.body);
-    if (responsePhone.statusCode == 200 && responseBodyPhone['success'] == "success") {
-      ShowDialog.closeLoader();
-      UserModel? value = UserModel.fromJson(responseBodyPhone);
-      Preferences.setString(Preferences.user, jsonEncode(value));
-      userModel.value = value;
-      isActive.value = userModel.value.data!.online == "yes" ? true : false;
-    }
-  }*/
-
 
   RxInt selectedDrawerIndex = 0.obs;
   var drawerItems = [];
@@ -126,54 +101,6 @@ class DashBoardController extends GetxController {
         return Text("Error");
     }
   }
-
-  /*Future<dynamic> setCurrentLocation(String latitude, String longitude) async {
-    try {
-      Map<String, dynamic> bodyParams = {
-        'id_user': Preferences.getInt(Preferences.userId),
-        'user_cat': userModel.value.userData!.userCat,
-        'latitude': latitude,
-        'longitude': longitude
-      };
-      final response = await http.post(Uri.parse(API.updateLocation), headers: API.header, body: jsonEncode(bodyParams));
-
-      Map<String, dynamic> responseBody = json.decode(response.body);
-      if (response.statusCode == 200) {
-        return responseBody;
-      }
-    } on TimeoutException catch (e) {
-      ShowDialog.showToast(e.message.toString());
-    } on SocketException catch (e) {
-      ShowDialog.showToast(e.message.toString());
-    } on Error catch (e) {
-      ShowDialog.showToast(e.toString());
-    } catch (e) {
-      ShowDialog.showToast(e.toString());
-    }
-    return null;
-  }*/
-
-  /* Future<dynamic> updateFCMToken(String token) async {
-    try {
-      Map<String, dynamic> bodyParams = {'user_id': Preferences.getInt(Preferences.userId), 'fcm_id': token, 'device_id': "", 'user_cat': userModel.value.userData!.userCat};
-      final response = await http.post(Uri.parse(API.updateToken), headers: API.header, body: jsonEncode(bodyParams));
-
-      Map<String, dynamic> responseBody = json.decode(response.body);
-      if (response.statusCode == 200) {
-        return responseBody;
-      } else {}
-    } on TimeoutException catch (e) {
-      ShowDialog.showToast(e.message.toString());
-    } on SocketException catch (e) {
-      ShowDialog.showToast(e.message.toString());
-    } on Error catch (e) {
-      ShowDialog.showToast(e.toString());
-    } catch (e) {
-      ShowDialog.showToast(e.toString());
-    }
-    return null;
-  }
-*/
 
 
 }

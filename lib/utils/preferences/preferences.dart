@@ -1,14 +1,17 @@
 // ignore_for_file: file_names
 import 'package:shared_preferences/shared_preferences.dart';
+
+
 class Preferences {
- // static const isFinishSplash = "isFinishSplashKey";
   static const languageCodeKey = "languageCodeKey";
   static const isLogin = "isLogin";
   static const userId = "userId";
+  static const driverId = "driverId";
   static const user = "userData";
+  static const driver = "driverData";
+  static const vehicle = "vehicleData";
   static const userName = "userName";
   static const userEmail = "userEmail";
-  static const paymentSetting = "paymentSetting";
   static const currency = "currency";
   static const token = "token";
 
@@ -17,6 +20,7 @@ class Preferences {
   static initPref() async {
     pref = await SharedPreferences.getInstance();
   }
+
 
   static bool getBoolean(String key) {
     return pref.getBool(key) ?? false;

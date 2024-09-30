@@ -124,6 +124,7 @@ class _MapScreenState extends State<MapScreen> {
       log('Insufficient data to draw the route.');
       return;
     }
+
     List<LatLng> routePoints = [pickup];
 
     if (bookController.stopoverLatLng.isNotEmpty) {

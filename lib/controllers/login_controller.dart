@@ -8,7 +8,9 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import '../constant/show_dialog.dart';
+import '../models/driver_model.dart';
 import '../models/user_model.dart';
+import '../models/vehicle_model.dart';
 import '../service/api.dart';
 import '../utils/preferences/preferences.dart';
 
@@ -24,24 +26,26 @@ class LoginController extends GetxController {
       if (deviceToken != null) {
         bodyParams['device_token'] = deviceToken;
       }
-
       final response = await http.post(
         Uri.parse(API.userLogin),
         headers: API.authheader,
         body: jsonEncode(bodyParams),
       );
-
       Map<String, dynamic> responseBody = json.decode(response.body);
-
-      log("Response body: ${response.body}");
       ShowDialog.closeLoader();
       if (response.statusCode == 200) {
         if (responseBody['status'] == true) {
-          String accessToken = responseBody['data']['token'].toString();
-          Preferences.setString(Preferences.token, accessToken);
-          API.header['Authorization'] = 'Bearer $accessToken';
-          ShowDialog.showToast('Login successful!');
-          return UserModel.fromJson(responseBody);
+
+          UserModel userModel = UserModel.fromJson(responseBody);
+          DriverModel driverModel = DriverModel.fromJson(responseBody['data']['driver']);
+
+          log("User ID: ${userModel.data!.user!.id!}");
+          log("Driver License No: ${driverModel.licenseNo}");
+          log("Vehicle Brand: ${driverModel.vehicle!.brand}");
+
+          await Preferences.setString('driver', jsonEncode(driverModel.toJson()));
+
+          return userModel;
         } else {
           String errorMessage =
               responseBody['message'] ?? 'Login failed. Please try again.';

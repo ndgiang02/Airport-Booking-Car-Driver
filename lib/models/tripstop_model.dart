@@ -15,13 +15,14 @@ class TripStop {
 
   factory TripStop.fromJson(Map<String, dynamic> json) {
     return TripStop(
-      tripBookingId: json['trip_booking_id'] != null ? int.tryParse(json['trip_booking_id'].toString()) : null,
-      address: json['address']?.toString(),
-      latitude: json['latitude'] != null ? double.tryParse(json['latitude'].toString()) : null,
-      longitude: json['longitude'] != null ? double.tryParse(json['longitude'].toString()) : null,
-      stopOrder: json['stop_order'] != null ? int.tryParse(json['stop_order'].toString()) : null,
+      tripBookingId: json['id'],
+      address: json['stop_address']?.toString(),
+      latitude: json['stop_lat'] != null ? double.tryParse(json['stop_lat'].toString()) : null,
+      longitude: json['stop_lng'] != null ? double.tryParse(json['stop_lng'].toString()) : null,
+      stopOrder: json['stop_order'],
     );
   }
+
 
   Map<String, dynamic> toJson() {
     return {

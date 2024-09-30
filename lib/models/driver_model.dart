@@ -3,33 +3,6 @@ import 'vehicle_model.dart';
 
 class DriverModel {
   DriverModel({
-    this.status,
-    this.message,
-    this.data,
-  });
-
-  bool? status;
-  String? message;
-  DriverData? data;
-
-  factory DriverModel.fromJson(Map<String, dynamic> json) {
-    return DriverModel(
-      status: json['status'] as bool?,
-      message: json['message']?.toString(),
-      data: json['data'] != null ? DriverData.fromJson(json['data']) : null,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'status': status,
-    'message': message,
-    'data': data?.toJson(),
-  };
-}
-
-
-class DriverData {
-  DriverData({
     this.id,
     this.userId,
     this.licenseNo,
@@ -49,8 +22,8 @@ class DriverData {
   double? latitude;
   double? longitude;
 
-  factory DriverData.fromJson(Map<String, dynamic> json) {
-    return DriverData(
+  factory DriverModel.fromJson(Map<String, dynamic> json) {
+    return DriverModel(
       id: json['id'] as int?,
       userId: json['user_id'] as int?,
       licenseNo: json['license_no']?.toString(),
