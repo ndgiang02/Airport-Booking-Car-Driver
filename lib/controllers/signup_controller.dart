@@ -14,9 +14,22 @@ import '../utils/preferences/preferences.dart';
 
 class SignUpController extends GetxController {
 
+  RxString phoneNumber = "".obs;
+  RxBool isPhoneValid = false.obs;
+
+  @override
+  void onClose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    conformPasswordController.dispose();
+    super.onClose();
+  }
+
   void clearData() {
+    phoneNumber.value = '';
+    isPhoneValid.value = false;
     nameController.clear();
-    phoneController.clear();
     emailController.clear();
     passwordController.clear();
     conformPasswordController.clear();
@@ -41,7 +54,6 @@ class SignUpController extends GetxController {
   ];
 
   final nameController = TextEditingController();
-  final phoneController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final conformPasswordController = TextEditingController();
@@ -55,42 +67,34 @@ class SignUpController extends GetxController {
 
   Future<UserModel?> signUp(Map<String, String> bodyParams) async {
     try {
-      ShowDialog.showLoader("Please wait");
+      ShowDialog.showLoader('please_wait'.tr);
 
       final response = await http.post(
         Uri.parse(API.userSignUP),
         headers: API.authheader,
         body: jsonEncode(bodyParams),
       );
-
       Map<String, dynamic> responseBody = json.decode(response.body);
-
+      log('Sign Up: $responseBody');
       if (response.statusCode == 201) {
         if (responseBody['status'] == true) {
           ShowDialog.closeLoader();
-          if (responseBody.containsKey('data') &&
-              responseBody['data'].containsKey('token')) {
-            Preferences.setString(
-                Preferences.token, responseBody['data']['token'].toString());
-            API.header['token'] = Preferences.getString(Preferences.token);
-          }
           return UserModel.fromJson(responseBody);
-        } else {
-          String errorMessage =
-              responseBody['message'] ?? 'Register failed. Please try again.';
-          ShowDialog.showToast(errorMessage);
+        } else if(response.statusCode == 500){
+          ShowDialog.closeLoader();
+          ShowDialog.showToast('Email already exists'.tr);
         }
       } else {
         ShowDialog.closeLoader();
-        ShowDialog.showToast('Invalid response format from server.');
+        ShowDialog.showToast('Invalid response format from server.'.tr);
       }
     } on TimeoutException catch (e) {
       ShowDialog.closeLoader();
-      ShowDialog.showToast('Request timed out. Please try again.');
+      ShowDialog.showToast('Request timed out. Please try again.'.tr);
     } on SocketException catch (e) {
       ShowDialog.closeLoader();
       ShowDialog.showToast(
-          'No internet connection. Please check your network.');
+          'No internet connection. Please check your network.'.tr);
     } on FormatException catch (e) {
       ShowDialog.closeLoader();
       ShowDialog.showToast('Invalid response format: ${e.message}');

@@ -12,7 +12,6 @@ import 'package:vietmap_flutter_plugin/vietmap_flutter_plugin.dart';
 
 import 'package:driverapp/utils/preferences/preferences.dart';
 import 'constant/constant.dart';
-import 'controllers/controlee.dart';
 import 'firebase_options.dart';
 import 'localization/app_localization.dart';
 
@@ -20,7 +19,7 @@ void configureEasyLoading() {
   EasyLoading.instance
     ..loadingStyle = EasyLoadingStyle.custom
     ..backgroundColor = Colors.white38.withOpacity(0.8)
-    ..textColor = Colors.black12
+    ..textColor = Colors.black
     ..indicatorColor = Colors.white
     ..textStyle = const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
     ..toastPosition = EasyLoadingToastPosition.center
@@ -98,7 +97,6 @@ class MyApp extends StatelessWidget {
         fallbackLocale: const Locale('vi', 'VN'),
         translations: AppTranslations(),
         builder: EasyLoading.init(),
-        //home: Dashboard(),
         initialRoute: AppRoutes.initialRoute,
         getPages: AppRoutes.pages,
     );

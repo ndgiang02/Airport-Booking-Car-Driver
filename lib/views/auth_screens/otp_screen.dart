@@ -1,16 +1,23 @@
+import 'dart:convert';
+
+import 'package:driverapp/views/auth_screens/signup_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../constant/constant.dart';
+import '../../constant/show_dialog.dart';
 import '../../controllers/phonenumber_controller.dart';
+import '../../utils/preferences/preferences.dart';
 import '../../utils/themes/button.dart';
 import '../../utils/themes/contant_colors.dart';
+import '../dashboard.dart';
 
 class OtpScreen extends StatelessWidget {
   String? phoneNumber;
-  //String? verificationId;
+  String? verificationId;
 
-  OtpScreen({Key? key, required this.phoneNumber}) : super(key: key);
+  OtpScreen({super.key, required this.phoneNumber, required this.verificationId});
 
   final controller = Get.put(PhoneNumberController());
   final textEditingController = TextEditingController();
@@ -77,49 +84,46 @@ class OtpScreen extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 40),
                             child: ButtonThem.buildButton(
                               context,
-                              title: 'Done'.tr,
+                              title: 'done'.tr,
                               btnHeight: 50,
                               btnColor: ConstantColors.primary,
                               txtColor: Colors.white,
                               onPress: () async {
-                                /*
                                 FocusScope.of(context).unfocus();
                                 if (textEditingController.text.length == 6) {
                                   ShowDialog.showLoader("Verify OTP");
                                   PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId.toString(), smsCode: textEditingController.text);
                                   await FirebaseAuth.instance.signInWithCredential(credential).then((value) async {
                                     Map<String, String> bodyParams = {
-                                      'phone': phoneNumber.toString(),
-                                      'user_cat': "customer",
+                                      'mobile': phoneNumber.toString(),
+                                      'user_type': "driver",
                                     };
-                                    await controller.phoneNumberIsExit(bodyParams).then((value) async {
+                                    await controller.checkUser(bodyParams).then((value) async {
                                       if (value == true) {
                                         Map<String, String> bodyParams = {
-                                          'phone': phoneNumber.toString(),
-                                          'user_cat': "customer",
+                                          'mobile': phoneNumber.toString(),
+                                          'user_type': "driver",
                                         };
-                                        await controller.getDataByPhoneNumber(bodyParams).then((value) {
+                                        await controller.loginByPhone(bodyParams).then((value) {
                                           if (value != null) {
-                                            if (value.success == "success") {
-                                              ShowDialog.closeLoader();
-
-                                              Preferences.setInt(Preferences.userId, value.data!.id!);
+                                            if (value.status == true) {
+                                              Preferences.setInt(Preferences.userId, value.data!.user!.id!);
                                               Preferences.setString(Preferences.user, jsonEncode(value));
-                                              Preferences.setString(Preferences.accesstoken, value.data!.accesstoken.toString());
-                                              API.header['accesstoken'] = Preferences.getString(Preferences.accesstoken);
-                                                Preferences.setBoolean(Preferences.isLogin, true);
-                                                Get.offAll(HomeScreen());
-                                              }
-                                            } else {
-                                              ShowDialog.showToast(value.error);
+                                              Preferences.setString(Preferences.userName, value.data!.user!.name!);
+                                              Preferences.setString(Preferences.userEmail, value.data!.user!.email!);
+                                              Preferences.setBoolean(Preferences.isLogin, true);
+                                              Get.offAll(() => Dashboard(),
+                                                  duration: const Duration(milliseconds: 400),
+                                                  transition: Transition.rightToLeft);
                                             }
+                                          } else {
+                                            ShowDialog.showToast(value?.message);
                                           }
-                                        });
+                                        }
+                                        );
                                       } else if(value == false){
                                         ShowDialog.closeLoader();
-                                        Get.off(SignUpScreen(
-                                          phoneNumber: phoneNumber.toString(),
-                                        ));
+                                        Get.off(SignUpScreen());
                                       }
                                     });
                                   }).catchError((error) {
@@ -129,7 +133,6 @@ class OtpScreen extends StatelessWidget {
                                 } else {
                                   ShowDialog.showToast("Please Enter OTP");
                                 }
-                                */
                               },
                             ))
                       ],

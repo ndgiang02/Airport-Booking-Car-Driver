@@ -9,7 +9,6 @@ import '../controllers/notification_controller.dart';
 
 class FirebaseService {
 
-
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final HomeController tripController = Get.put(HomeController());
   final NotificationController notificationController = Get.put(NotificationController());
@@ -26,24 +25,44 @@ class FirebaseService {
   void _handleIncomingNotification(RemoteMessage message) {
     log('FCM DATA : $message');
     log('Received FCM data: ${message.data}');
+
     if (message.data.isNotEmpty) {
       if (message.data['type'] == 'trip_request') {
         tripController.updateTripData(message.data);
         String title = message.notification?.title ?? 'Thông báo chuyến đi';
         String body = message.notification?.body ?? 'Bạn đã có một chuyến đi mới';
+
         Get.snackbar(
           title,
           body,
           snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.blueAccent.withOpacity(0.8),
-          colorText: Colors.white,
-          duration: Duration(seconds: 5),
-          margin: EdgeInsets.all(10),
+          backgroundColor: Colors.white.withOpacity(0.8),
+          colorText: Colors.black,
+          duration: const Duration(seconds: 5),
+          margin: const EdgeInsets.all(10),
           borderRadius: 10,
         );
-      } else if (message.data['type'] == 'promotion') {
+      }
+      else if (message.data['type'] == 'trip_cluster_request') {
+        tripController.updateTripData(message.data);
+        String title = message.notification?.title ?? 'Thông báo cụm chuyến đi';
+        String body = message.notification?.body ?? 'Bạn đã có một cụm chuyến đi mới';
+
+        Get.snackbar(
+          title,
+          body,
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.orangeAccent.withOpacity(0.8),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+          margin: const EdgeInsets.all(10),
+          borderRadius: 10,
+        );
+      }
+      else if (message.data['type'] == 'promotion') {
         notificationController.showNotification(message);
       }
     }
   }
+
 }

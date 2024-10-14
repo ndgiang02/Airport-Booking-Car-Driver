@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../constant/constant.dart';
 import '../controllers/dashboard_controller.dart';
+import '../controllers/notification_controller.dart';
 import '../utils/preferences/preferences.dart';
 
 class Dashboard extends StatelessWidget {
@@ -25,12 +26,12 @@ class Dashboard extends StatelessWidget {
             final cantExit = timeGap >= const Duration(seconds: 2);
             backPress = DateTime.now();
             if (cantExit) {
-              const snack = SnackBar(
+              final snack = SnackBar(
                 content: Text(
-                  'Press Back button again to Exit',
-                  style: TextStyle(color: Colors.white),
+                  'Press Back button again to Exit'.tr,
+                  style: const TextStyle(color: Colors.white),
                 ),
-                duration: Duration(seconds: 2),
+                duration: const Duration(seconds: 2),
                 backgroundColor: Colors.black,
               );
               ScaffoldMessenger.of(context).showSnackBar(snack);
@@ -48,21 +49,6 @@ class Dashboard extends StatelessWidget {
                 controller.drawerItems[controller.selectedDrawerIndex.value].title.toString(),
                 style: const TextStyle(color: Colors.black),
               ),
-              // title: Text(
-              //   controller.drawerItems[controller.selectedDrawerIndex.value].title.toString(),
-              //   style: const TextStyle(color: Colors.black),
-              // ),
-              // controller.selectedDrawerIndex.value == 7
-              // ? const Text(
-              //     'Earnings',
-              //     style: TextStyle(color: Colors.black),
-              //   )
-              //     : controller.selectedDrawerIndex.value == 8
-              //         ? const Text(
-              //             'Bank info',
-              //             style: TextStyle(color: Colors.black),
-              //           )
-              //         : Container(),
               leading: Builder(builder: (context) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -97,7 +83,7 @@ class Dashboard extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: GestureDetector(
                     onTap: () {
-                      //controller.toggleDriverStatusAndMoveCamera();
+                      //notifController.toggleNotification();
                     },
                     child: Container(
                       padding: const EdgeInsets.all(4.0),
@@ -112,7 +98,7 @@ class Dashboard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Icon(Icons.notifications),
+                      child: const Icon(Icons.notifications),
                     ),
                   ),
                 ),
@@ -121,6 +107,7 @@ class Dashboard extends StatelessWidget {
             drawer: buildAppDrawer(context, controller),
             body: controller.getDrawerItemWidget(controller.selectedDrawerIndex.value),
           ),
+
         );
       },
     );

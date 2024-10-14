@@ -1,5 +1,32 @@
 // vehicle_model.dart
 import 'package:driverapp/models/vehicletype_model.dart';
+
+class VehicleModel {
+  VehicleModel({
+    this.status,
+    this.message,
+    this.data,
+  });
+
+  bool? status;
+  String? message;
+  Vehicle? data;
+
+  factory VehicleModel.fromJson(Map<String, dynamic> json) {
+    return VehicleModel(
+      status: json['status'] as bool?,
+      message: json['message']?.toString(),
+      data: json['data'] != null ? Vehicle.fromJson(json['data']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'status': status,
+    'message': message,
+    'data': data?.toJson(),
+  };
+}
+
 class Vehicle {
   Vehicle({
     this.driverId,

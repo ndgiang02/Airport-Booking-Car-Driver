@@ -2,6 +2,7 @@ import 'package:driverapp/constant/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import '../../constant/show_dialog.dart';
 import '../../controllers/phonenumber_controller.dart';
 import '../../utils/themes/button.dart';
 import '../../utils/themes/contant_colors.dart';
@@ -39,7 +40,7 @@ class MobileNumberScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          isLogin == true ? "Login Phone" : "Signup Phone".tr,
+                          isLogin == true ? "login phone".tr : "signup phone".tr,
                           style: const TextStyle(
                               letterSpacing: 0.60,
                               fontSize: 22,
@@ -60,7 +61,7 @@ class MobileNumberScreen extends StatelessWidget {
                                   color: ConstantColors.textFieldBoarderColor,
                                 ),
                                 borderRadius:
-                                const BorderRadius.all(Radius.circular(6))),
+                                    const BorderRadius.all(Radius.circular(6))),
                             padding: const EdgeInsets.only(left: 10),
                             child: InternationalPhoneNumberInput(
                               onInputChanged: (PhoneNumber number) {
@@ -68,12 +69,13 @@ class MobileNumberScreen extends StatelessWidget {
                                     number.phoneNumber.toString();
                               },
                               onInputValidated: (bool value) =>
-                              controller.isPhoneValid.value = value,
+                                  controller.isPhoneValid.value = value,
                               ignoreBlank: true,
                               autoValidateMode:
-                              AutovalidateMode.onUserInteraction,
+                                  AutovalidateMode.onUserInteraction,
+                              initialValue: PhoneNumber(isoCode: 'VN'),
                               inputDecoration: InputDecoration(
-                                hintText: 'Phone Number'.tr,
+                                hintText: 'phone'.tr,
                                 border: InputBorder.none,
                                 isDense: true,
                               ),
@@ -91,15 +93,12 @@ class MobileNumberScreen extends StatelessWidget {
                               btnColor: ConstantColors.primary,
                               txtColor: Colors.white,
                               onPress: () async {
-                                /*
                                 FocusScope.of(context).unfocus();
                                 if (controller.isPhoneValid.value) {
-                                  ShowDialog.showLoader("Code sending");
+                                  ShowDialog.showLoader('sending OTP'.tr);
                                   controller
                                       .sendCode(controller.phoneNumber.value);
                                 }
-
-                                 */
                               },
                             )),
                         Padding(

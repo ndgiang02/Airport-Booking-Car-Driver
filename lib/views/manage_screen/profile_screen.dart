@@ -87,7 +87,7 @@ class MyProfileScreen extends StatelessWidget {
                         children: [
                           buildShowDetails(
                             subtitle: myProfileController.name.toString(),
-                            title: "Full Name",
+                            title: "full name".tr,
                             iconData: Icons.person_outline,
                             isEditIcon: true,
                             onPress: () {
@@ -130,7 +130,7 @@ class MyProfileScreen extends StatelessWidget {
                                   }
                                 },
                                 controller: nameController,
-                                title: "Full Name",
+                                title: "full name".tr,
                                 iconData: Icons.person_outline,
                                 validators: (String? name) {
                                   return null;
@@ -273,7 +273,7 @@ class MyProfileScreen extends StatelessWidget {
     return Get.defaultDialog(
       titlePadding: const EdgeInsets.only(top: 20),
       radius: 6,
-      title: "Change Information",
+      title: 'change information'.tr,
       titleStyle: const TextStyle(
         fontSize: 20,
       ),
@@ -292,7 +292,7 @@ class MyProfileScreen extends StatelessWidget {
             Row(
               children: [
                 ButtonThem.buildButton(context,
-                    title: "Save",
+                    title: "save".tr,
                     btnColor: ConstantColors.primary,
                     txtColor: Colors.white,
                     onPress: onSubmitBtn,
@@ -302,7 +302,7 @@ class MyProfileScreen extends StatelessWidget {
                   width: 15,
                 ),
                 ButtonThem.buildButton(context,
-                    title: "Cancel",
+                    title: 'cancel'.tr,
                     btnHeight: 40,
                     btnWidthRatio: 0.3,
                     btnColor: ConstantColors.blue1,
@@ -323,7 +323,7 @@ class MyProfileScreen extends StatelessWidget {
     return Get.defaultDialog(
       titlePadding: const EdgeInsets.only(top: 20),
       radius: 6,
-      title: "Change Password",
+      title: "change password".tr,
       titleStyle: const TextStyle(
         fontSize: 20,
       ),
@@ -336,7 +336,7 @@ class MyProfileScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFieldTheme.boxBuildTextField(
-                hintText: "Current Password",
+                hintText: "current password".tr,
                 obscureText: false,
                 controller: currentPasswordController,
                 validators: (valve) {
@@ -351,14 +351,14 @@ class MyProfileScreen extends StatelessWidget {
                 height: 10,
               ),
               TextFieldTheme.boxBuildTextField(
-                hintText: "New Password",
+                hintText: "new password".tr,
                 obscureText: false,
                 controller: newPasswordController,
                 validators: (valve) {
                   if (valve!.isNotEmpty) {
                     return null;
                   } else {
-                    return "*required";
+                    return '*required'.tr;
                   }
                 },
               ),
@@ -366,14 +366,14 @@ class MyProfileScreen extends StatelessWidget {
                 height: 10,
               ),
               TextFieldTheme.boxBuildTextField(
-                hintText: "Confirm Password",
+                hintText: 'confirm password'.tr,
                 obscureText: false,
                 controller: confirmPasswordController,
                 validators: (valve) {
                   if (valve == newPasswordController.text) {
                     return null;
                   } else {
-                    return "Password Field do not match  !!";
+                    return 'password field do not match !!'.tr;
                   }
                 },
               ),
@@ -384,7 +384,7 @@ class MyProfileScreen extends StatelessWidget {
                 children: [
                   ButtonThem.buildButton(
                     context,
-                    title: "Save",
+                    title: "save".tr,
                     btnColor: ConstantColors.primary,
                     txtColor: Colors.white,
                     btnHeight: 40,
@@ -404,7 +404,7 @@ class MyProfileScreen extends StatelessWidget {
                           if (value != null) {
                             if (value['status'] == true) {
                               ShowDialog.showToast(
-                                  "Password change successfully");
+                                  'password change successfully'.tr);
                               Get.back();
                             } else {
                               ShowDialog.showToast(value['error']);
@@ -418,7 +418,7 @@ class MyProfileScreen extends StatelessWidget {
                     width: 15,
                   ),
                   ButtonThem.buildButton(context,
-                      title: "Cancel",
+                      title: 'cancel'.tr,
                       btnHeight: 40,
                       btnWidthRatio: 0.3,
                       btnColor: ConstantColors.blue1,

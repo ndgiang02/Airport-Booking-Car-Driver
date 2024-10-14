@@ -2,9 +2,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../models/notification_model.dart';
 
 class NotificationController extends GetxController {
+
+  var isNotificationDrawerOpen = false.obs;
+
+  void toggleNotification() {
+    isNotificationDrawerOpen.value = !isNotificationDrawerOpen.value;
+  }
 
   var notifications = <Map<String, String>>[].obs;
 

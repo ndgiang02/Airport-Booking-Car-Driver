@@ -1,8 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:driverapp/views/activities_screen/activities_screen.dart';
 import 'package:driverapp/views/home_screens/home_screen.dart';
 import 'package:driverapp/views/introduction/introduction.dart';
@@ -11,7 +6,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 
 import '../utils/preferences/preferences.dart';
@@ -44,16 +38,16 @@ class DashBoardController extends GetxController {
   getDrawerItem() {
     drawerItems = [
       DrawerItem(
-        'Home'.tr,
+        'home'.tr,
         CupertinoIcons.car_detailed,
       ),
       DrawerItem('History'.tr, Icons.history_toggle_off),
       DrawerItem('my_profile'.tr, Icons.person_outline),
-      DrawerItem('Vehicle information'.tr, Icons.car_rental_sharp),
+      DrawerItem('vehicle_info'.tr, Icons.car_rental_sharp),
       DrawerItem('My Earnings'.tr, Icons.account_balance_wallet_outlined),
       DrawerItem('select_language'.tr, Icons.language),
       DrawerItem('contact_us'.tr, Icons.rate_review_outlined),
-      DrawerItem('term_service'.tr, Icons.design_services),
+      DrawerItem('term_policy'.tr, Icons.design_services),
       DrawerItem('intro'.tr, Icons.interpreter_mode_rounded),
       DrawerItem('sign_out'.tr, Icons.logout),
     ];
@@ -76,29 +70,29 @@ class DashBoardController extends GetxController {
   }
   getDrawerItemWidget(int pos) {
     if (pos >= drawerItems.length || pos < 0) {
-      return Text("Error");
+      return const Text("Error");
     }
     switch (pos) {
       case 0:
-        return HomeScreen();
+        return const HomeScreen();
       case 1:
         return ActivitiesScreen();
       case 2:
         return MyProfileScreen();
       case 3:
-        return  VehicleScreen();
+        return  const VehicleScreen();
       case 4:
-        return MyWalletScreen();
+        return const MyWalletScreen();
       case 5:
-        return LocalizationScreen();
+        return const LocalizationScreen();
       case 6:
         return const SupportScreen();
       case 7:
         return const TermsOfServiceScreen();
       case 8:
-        return const IntroductionScreen();
+        return IntroScreen();
       default:
-        return Text("Error");
+        return  Text('error'.tr);
     }
   }
 

@@ -1,7 +1,7 @@
 import 'package:driverapp/bindings/activities_binding/activities_binding.dart';
-import 'package:driverapp/bindings/booking_binding/booking_binding.dart';
 import 'package:driverapp/bindings/home_binding/home_binding.dart';
 import 'package:driverapp/bindings/notification_binding/notification_binding.dart';
+import 'package:driverapp/bindings/vehicle_binding/vehicle_binding.dart';
 import 'package:driverapp/views/auth_screens/signup_screen.dart';
 import 'package:driverapp/views/dashboard.dart';
 import 'package:driverapp/views/home_screens/home_screen.dart';
@@ -9,6 +9,7 @@ import 'package:driverapp/views/manage_screen/profile_screen.dart';
 import 'package:driverapp/views/notifition_screen/notification_detail.dart';
 import 'package:driverapp/views/notifition_screen/notifition_screen.dart';
 import 'package:driverapp/views/splash_screen/splash_screen.dart';
+import 'package:driverapp/views/vehicle_screen/vehicle_screen.dart';
 import 'package:get/get.dart';
 
 
@@ -34,15 +35,11 @@ class AppRoutes {
 
   static const String notificationDetail = '/notificationdetail';
 
+  static const String vehicleScreen = '/vehicle';
+
   static const String manageScreen = '/manage';
 
   static const String localizationScreen = '/localization';
-
-  static const String airportScreen = '/airport';
-
-  static const String longtripScreen = '/longtrip';
-
-  static const String test = '/test';
 
   static const String initialRoute = '/initialRoute';
 
@@ -60,10 +57,11 @@ class AppRoutes {
     ),
     GetPage(
       name: homeScreen,
-      page: () => HomeScreen(),
+      page: () => const HomeScreen(),
       bindings: [
         HomeBinding(),
       ],
+      maintainState: true,
     ),
     GetPage(
       name: activitiesScreen,
@@ -80,13 +78,6 @@ class AppRoutes {
       ],
     ),
     GetPage(
-      name: dashBoard,
-      page: () =>  Dashboard(),
-      bindings: [
-        BookingBinding(),
-      ],
-    ),
-    GetPage(
       name: profileScreen,
       page: () =>  MyProfileScreen(),
       bindings: [
@@ -100,6 +91,14 @@ class AppRoutes {
         NotificationBinding(),
       ],
     ),
+    GetPage(
+      name: vehicleScreen,
+      page: () => VehicleScreen(),
+      bindings: [
+        VehicleBinding(),
+      ],
+    ),
+
 
   ];
 }

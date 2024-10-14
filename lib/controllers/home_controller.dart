@@ -13,6 +13,7 @@ import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 
 import '../constant/constant.dart';
 import '../constant/show_dialog.dart';
+import '../models/user_model.dart';
 import '../service/api.dart';
 
 class HomeController extends GetxController {
@@ -21,23 +22,116 @@ class HomeController extends GetxController {
   var isLoading = true.obs;
   var polylinePoints = <LatLng>[].obs;
   var stops = <TripStop>[].obs;
+  var pickupPoints = <LatLng>[].obs;
+  var destinationPoints = <LatLng>[].obs;
+  var stopsPoints = <LatLng>[].obs;
+
+  var tripDetails = [].obs;
 
   var isAvailable = false.obs;
   var latitude = 0.0.obs;
   var longitude = 0.0.obs;
   var isUpdating = false.obs;
 
-  var pickupLatLong = Rxn<LatLng>();
-  var destinationLatLong = Rxn<LatLng>();
   var currentLatLng = Rxn<LatLng>();
   var location = Rxn<LatLng>();
 
+  var customerName = ''.obs;
+  var customerEmail = ''.obs;
+  var customerMobile = ''.obs;
+
+
+  @override
+  void onInit() {
+    super.onInit();
+    _startLocationUpdates();
+  }
+
+  void clearData() {
+    tripData.clear();
+    currentSheetIndex.value = -1;
+
+    polylinePoints.clear();
+    stops.clear();
+
+    currentLatLng.value = null;
+    location.value = null;
+
+    pickupPoints.clear();
+    destinationPoints.clear();
+    stopsPoints.clear();
+
+    tripDetails.clear();
+
+
+    customerName.value = '';
+    customerEmail.value = '';
+    customerMobile.value = '';
+  }
+
 
   updateInfo(TripModel trip) {
-    pickupLatLong.value = LatLng(trip.data!.fromLat!, trip.data!.fromLng!);
-    destinationLatLong.value = LatLng(trip.data!.toLat!, trip.data!.toLng!);
+    pickupPoints.add(LatLng(trip.data!.fromLat!, trip.data!.fromLng!));
+    destinationPoints.add(LatLng(trip.data!.toLat!, trip.data!.toLng!));
     stops.addAll(trip.data!.tripStops!);
     stops.sort((a, b) => a.stopOrder!.compareTo(b.stopOrder!));
+
+    for (var stop in stops) {
+      if (stop.latitude != null && stop.longitude != null) {
+        stopsPoints.add(LatLng(stop.latitude!, stop.longitude!));
+      }
+    }
+
+    tripDetails.add({
+      'name': tripData['customer_name'],
+      'mobile': tripData['mobile'],
+      'from_address': trip.data?.fromAddress,
+      'to_address': trip.data?.toAddress,
+    });
+  }
+
+  void updateClusterInfo(List<dynamic> trips) {
+    pickupPoints.clear();
+    destinationPoints.clear();
+    stops.clear();
+    for (var trip in trips) {
+
+      double fromLat = double.parse(trip['from_lat']);
+      double fromLng = double.parse(trip['from_lng']);
+      double toLat = double.parse(trip['to_lat']);
+      double toLng = double.parse(trip['to_lng']);
+
+      pickupPoints.add(LatLng(fromLat, fromLng));
+      destinationPoints.add(LatLng(toLat, toLng));
+      tripDetails.add({
+        'name': trip['name'],
+        'mobile': trip['mobile'],
+        'from_address': trip['from_address'],
+        'to_address': trip['to_address'],
+      });
+    }
+  }
+
+  Future<void> drawClusterRoute(VietmapController mapController, List<LatLng> points ) async {
+    if (points.isEmpty) {
+      log('No points provided to draw the route.');
+      return;
+    }
+    LatLng? first = location.value;
+    if (first == null) {
+      log('First location is null, cannot draw route.');
+      return;
+    }
+    List<LatLng> routePoints = [first];
+    routePoints.addAll(points);
+    await fetchRouteData(routePoints);
+    addPolyline(mapController);
+  }
+
+  updateCustomer(User customer) {
+    customerName.value = customer.name ?? '';
+    customerEmail.value = customer.email ?? '';
+    customerMobile.value = customer.mobile ?? '';
   }
 
   Future<void> drawRoute(VietmapController mapController, LatLng? start, LatLng? end,  {List<TripStop>? stops} ) async {
@@ -59,37 +153,127 @@ class HomeController extends GetxController {
     addPolyline(mapController);
   }
 
-
-
   void updateTripData(Map<String, dynamic> data) {
     tripData.value = data;
     currentSheetIndex.value = 0;
   }
 
- /* Timer? confirmTimer;
+  Future<Map<String, dynamic>?> acceptClusterTrip(String clusterId) async {
+    try {
+      ShowDialog.showLoader('please_wait'.tr);
+      final response = await http.post(
+        Uri.parse(API.acceptClusterTrip),
+        headers: API.header,
+        body: jsonEncode({
+          'cluster_id': clusterId,
+        }),
+      );
+      Map<String, dynamic> responseBody = json.decode(response.body);
+      log('Cluster Trip: $responseBody');
+      ShowDialog.closeLoader();
+      if (response.statusCode == 200) {
 
-  void startConfirmationTimer() {
-    confirmTimer?.cancel();
-    confirmTimer = Timer(const Duration(seconds: 20), () {
-      cancelTrip();
-    });
+        if (responseBody['status'] == true) {
+          return responseBody;
+        } else {
+          String errorMessage = responseBody['message'];
+          ShowDialog.showToast(errorMessage);
+        }
+      } else {
+        ShowDialog.showToast('${response.statusCode}. Please try again later.');
+      }
+    } on TimeoutException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('Request timed out. Please try again.');
+    } on SocketException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('No internet connection. Please check your network.');
+    } catch (e) {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('An unexpected error occurred: $e');
+    }
+    return null;
   }
 
-  void cancelTrip() {
-    confirmTimer?.cancel();
-    currentSheetIndex.value = -1;
-    tripData.value = {};
-  }*/
+  Future<Map<String, dynamic>?> startClusterTrip(String clusterId) async {
+    try {
+      ShowDialog.showLoader("please_wait".tr);
+      final response = await http.post(Uri.parse(API.startClusterTrip),
+        headers: API.header,
+        body: jsonEncode({
+          'cluster_id': clusterId,
+        }),
+      );
+      Map<String, dynamic> responseBody = json.decode(response.body);
 
-  @override
-  void onInit() {
-    super.onInit();
-    _startLocationUpdates();
+      log('Start Trip : $responseBody');
+
+      ShowDialog.closeLoader();
+      if (response.statusCode == 200) {
+        if (responseBody['status'] == true) {
+          return responseBody;
+        } else {
+          String errorMessage = responseBody['message'];
+          ShowDialog.showToast(errorMessage);
+        }
+      } else {
+        ShowDialog.showToast('${response.statusCode}. Please try again later.');
+      }
+    } on TimeoutException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('Request timed out. Please try again.');
+    } on SocketException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast(
+          'No internet connection. Please check your network.');
+    } catch (e) {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('An unexpected error occurred: $e');
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> completeClusterTrip(String clusterId) async {
+    try {
+      ShowDialog.showLoader('please_wait'.tr);
+      final response = await http.post(Uri.parse(API.completeClusterTrip),
+        headers: API.header,
+        body: jsonEncode({
+          'cluster_id': clusterId,
+        }),
+      );
+      Map<String, dynamic> responseBody = json.decode(response.body);
+
+      log('Start Trip : $responseBody');
+
+      ShowDialog.closeLoader();
+      if (response.statusCode == 200) {
+        if (responseBody['status'] == true) {
+          return responseBody;
+        } else {
+          String errorMessage = responseBody['message'];
+          ShowDialog.showToast(errorMessage);
+        }
+      } else {
+        ShowDialog.showToast('${response.statusCode}. Please try again later.');
+      }
+    } on TimeoutException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('Request timed out. Please try again.');
+    } on SocketException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast(
+          'No internet connection. Please check your network.');
+    } catch (e) {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('An unexpected error occurred: $e');
+    }
+    return null;
   }
 
   Future<TripModel?> acceptTrip(String tripId) async {
     try {
-      ShowDialog.showLoader("Please wait");
+      ShowDialog.showLoader('please_wait'.tr);
       final response = await http.post(Uri.parse(API.acceptTrip),
         headers: API.header,
         body: jsonEncode({
@@ -97,13 +281,88 @@ class HomeController extends GetxController {
         }),
       );
       Map<String, dynamic> responseBody = json.decode(response.body);
+      ShowDialog.closeLoader();
+      if (response.statusCode == 200) {
+        if (responseBody['status'] == true) {
+          User userData = User.fromJson(responseBody['data']['customer']['user']);
+          updateCustomer(userData);
+          return TripModel.fromJson(responseBody);
+        } else {
+          String errorMessage = responseBody['message'];
+          ShowDialog.showToast(errorMessage);
+        }
+      } else {
+        ShowDialog.showToast('${response.statusCode}. Please try again later.');
+      }
+    } on TimeoutException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('Request timed out. Please try again.');
+    } on SocketException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast(
+          'No internet connection. Please check your network.');
+    } catch (e) {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('An unexpected error occurred: $e');
+    }
+    return null;
+  }
 
-      log('Accept Trip : $responseBody');
+  Future<Map<String, dynamic>?> startTrip(String tripId) async {
+    try {
+      ShowDialog.showLoader('please_wait'.tr);
+      final response = await http.post(Uri.parse(API.startTrip),
+        headers: API.header,
+        body: jsonEncode({
+          'trip_id': tripId,
+        }),
+      );
+      Map<String, dynamic> responseBody = json.decode(response.body);
+
+      log('Start Trip : $responseBody');
 
       ShowDialog.closeLoader();
       if (response.statusCode == 200) {
         if (responseBody['status'] == true) {
-          return TripModel.fromJson(responseBody);
+          return responseBody;
+        } else {
+          String errorMessage = responseBody['message'];
+          ShowDialog.showToast(errorMessage);
+        }
+      } else {
+        ShowDialog.showToast('${response.statusCode}. Please try again later.');
+      }
+    } on TimeoutException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('Request timed out. Please try again.');
+    } on SocketException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast(
+          'No internet connection. Please check your network.');
+    } catch (e) {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('An unexpected error occurred: $e');
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> completeTrip(String tripId) async {
+    try {
+      ShowDialog.showLoader('please_wait'.tr);
+      final response = await http.post(Uri.parse(API.completeTrip),
+        headers: API.header,
+        body: jsonEncode({
+          'trip_id': tripId,
+        }),
+      );
+      Map<String, dynamic> responseBody = json.decode(response.body);
+
+      log('Complete Trip : $responseBody');
+
+      ShowDialog.closeLoader();
+      if (response.statusCode == 200) {
+        if (responseBody['status'] == true) {
+          return responseBody;
         } else {
           String errorMessage = responseBody['message'];
           ShowDialog.showToast(errorMessage);
@@ -127,7 +386,7 @@ class HomeController extends GetxController {
 
   Future<dynamic> updateDriverStatus(bodyParams) async {
     try {
-      ShowDialog.showLoader("Please wait");
+      ShowDialog.showLoader('please_wait'.tr);
       final response = await http.post(Uri.parse(API.updateStatus),
           headers: API.header, body: jsonEncode(bodyParams));
       Map<String, dynamic> responseBody = json.decode(response.body);
@@ -157,7 +416,7 @@ class HomeController extends GetxController {
     Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 3,
+        distanceFilter: 20,
       ),
     ).listen((Position position) {
       latitude.value = position.latitude;
@@ -168,6 +427,7 @@ class HomeController extends GetxController {
         'longitude': position.longitude
       };
       updateDriverLocation(bodyParams);
+      log('$bodyParams');
     });
   }
 
@@ -177,7 +437,7 @@ class HomeController extends GetxController {
     try {
       final response = await http.post(Uri.parse(API.updateLocation),
           headers: API.header, body: jsonEncode(bodyParams));
-      Map<String, dynamic> responseBody = json.decode(response.body);
+      //Map<String, dynamic> responseBody = json.decode(response.body);
       if (response.statusCode == 200) {
         ShowDialog.closeLoader();
         //return responseBody;
@@ -205,7 +465,7 @@ class HomeController extends GetxController {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        return Future.error('Location services are disabled.');
+        return Future.error('Location services are disabled.'.tr);
       }
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -219,7 +479,9 @@ class HomeController extends GetxController {
             'Location permissions are permanently denied, we cannot request permissions.');
       }
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),);
       LatLng currentLatLng = LatLng(position.latitude, position.longitude);
       if (controller != null) {
         controller.animateCamera(
@@ -254,14 +516,14 @@ class HomeController extends GetxController {
             return LatLng(coordinate[1], coordinate[0]);
           }).toList();
 
-          final distanceInMeters = (firstPath['distance'] as num).toDouble();
-          final timeInMillis = (firstPath['time'] as num).toInt();
+          //final distanceInMeters = (firstPath['distance'] as num).toDouble();
+          //final timeInMillis = (firstPath['time'] as num).toInt();
 
         } else {
           throw Exception('No paths found in the response');
         }
       } else {
-        throw Exception('Failed to load route data: Status code ${response.statusCode}');
+        throw Exception('Status code ${response.statusCode}');
       }
     } catch (e) {
       log('Error fetching route data: $e');
@@ -333,10 +595,22 @@ class HomeController extends GetxController {
           north: maxLat,
           south: minLat,
           east: maxLng,
-          padding: 100);
+          padding: 200);
+
+      double zoomLevel = 17.0;
 
       await mapController.animateCamera(
         CameraUpdate.newLatLngBounds(bounds),
+      );
+
+      await mapController.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          LatLng(
+            (minLat + maxLat) / 2 + 0.01,
+            (minLng + maxLng) / 2,
+          ),
+          zoomLevel,
+        ),
       );
     }
   }

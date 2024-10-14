@@ -2,7 +2,7 @@ import 'dart:io';
 import '../utils/preferences/preferences.dart';
 
 class API {
-  static const baseUrl = "http://192.168.11.19:8000/api/";
+  static const baseUrl = "http://192.168.11.30:8000/api/";
   static const apiKey = "";
 
   static Map<String, String> authheader = {
@@ -20,6 +20,8 @@ class API {
 
   static const userSignUP = "${baseUrl}register-driver";
   static const userLogin = "${baseUrl}login";
+  static const getUserByPhone = "${baseUrl}get-user-by-phone";
+  static const checkUser = "${baseUrl}check-phone";
 
 
   static const sendResetPasswordOtp = "${baseUrl}send-otp";
@@ -28,7 +30,6 @@ class API {
 
 
   static const fetchTrips = "${baseUrl}fetch-trips";
-  static const bookRides = "${baseUrl}trip-booking";
   static const fetchVehicle = "${baseUrl}vehicle-types";
   static const changeStatus = "${baseUrl}contact-us";
 
@@ -38,17 +39,28 @@ class API {
   static const updateStatus = "${baseUrl}driver/update-status";
   static const updateLocation = "${baseUrl}driver/update-location";
   static const acceptTrip = "${baseUrl}driver/accept-trip";
+  static const startTrip = "${baseUrl}driver/start-trip";
+  static const completeTrip = "${baseUrl}driver/complete-cluster-trip";
+  static const wallet = "${baseUrl}driver/my-wallet";
+
+  static const acceptClusterTrip = "${baseUrl}driver/accept-cluster-trip";
+  static const startClusterTrip = "${baseUrl}driver/start-cluster-trip";
+  static const completeClusterTrip = "${baseUrl}driver/complete-cluster-trip";
+
+  static const getVehicle = "${baseUrl}vehicle/get-vehicle";
+
+  static const introduction = "${baseUrl}intro";
+  static const terms = "${baseUrl}terms";
+
 
   static const updateName = "${baseUrl}user-name";
   static const contactUs = "${baseUrl}contact-us";
   static const updateToken = "${baseUrl}update-fcm";
   static const rentVehicle = "${baseUrl}vehicle-get";
-  static const transaction = "${baseUrl}transaction";
   static const getFcmToken = "${baseUrl}fcm-token";
   static const deleteFavouriteRide = "${baseUrl}delete-favorite-ride";
   static const rejectRide = "${baseUrl}set-rejected-requete";
 
-  static const introduction = "${baseUrl}introduction";
 }
 
 

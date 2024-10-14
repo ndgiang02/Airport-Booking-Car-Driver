@@ -10,7 +10,6 @@ import 'package:http/http.dart' as http;
 import '../constant/show_dialog.dart';
 import '../models/driver_model.dart';
 import '../models/user_model.dart';
-import '../models/vehicle_model.dart';
 import '../service/api.dart';
 import '../utils/preferences/preferences.dart';
 
@@ -20,7 +19,7 @@ class LoginController extends GetxController {
 
   Future<UserModel?> loginAPI(Map<String, String> bodyParams) async {
     try {
-      ShowDialog.showLoader("Please wait");
+      ShowDialog.showLoader('please_wait'.tr);
 
       String? deviceToken = await FirebaseMessaging.instance.getToken();
       if (deviceToken != null) {
@@ -32,36 +31,33 @@ class LoginController extends GetxController {
         body: jsonEncode(bodyParams),
       );
       Map<String, dynamic> responseBody = json.decode(response.body);
-      ShowDialog.closeLoader();
       if (response.statusCode == 200) {
         if (responseBody['status'] == true) {
-
+          ShowDialog.closeLoader();
+          String accessToken = responseBody['data']['token'].toString();
+          Preferences.setString(Preferences.token, accessToken);
+          API.header['Authorization'] = 'Bearer $accessToken';
           UserModel userModel = UserModel.fromJson(responseBody);
           DriverModel driverModel = DriverModel.fromJson(responseBody['data']['driver']);
-
-          log("User ID: ${userModel.data!.user!.id!}");
-          log("Driver License No: ${driverModel.licenseNo}");
-          log("Vehicle Brand: ${driverModel.vehicle!.brand}");
-
           await Preferences.setString('driver', jsonEncode(driverModel.toJson()));
-
+          ShowDialog.showToast('login successful'.tr);
           return userModel;
         } else {
           String errorMessage =
-              responseBody['message'] ?? 'Login failed. Please try again.';
+              responseBody['message'] ?? 'Login failed. Please try again.'.tr;
           ShowDialog.showToast(errorMessage);
         }
       } else {
         ShowDialog.showToast(
-            '${response.statusCode}. Please try again later.');
+            '${response.statusCode}. Please try again later.'.tr);
       }
     } on TimeoutException {
       ShowDialog.closeLoader();
-      ShowDialog.showToast('Request timed out. Please try again.');
+      ShowDialog.showToast('Request timed out. Please try again.'.tr);
     } on SocketException {
       ShowDialog.closeLoader();
       ShowDialog.showToast(
-          'No internet connection. Please check your network.');
+          'No internet connection. Please check your network.'.tr);
     } catch (e) {
       ShowDialog.closeLoader();
       ShowDialog.showToast('An unexpected error occurred: $e');

@@ -1,15 +1,10 @@
-import 'dart:convert';
-import 'dart:developer';
 
 import 'package:driverapp/constant/constant.dart';
-import 'package:driverapp/views/dashboard.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../constant/show_dialog.dart';
 import '../../controllers/signup_controller.dart';
-import '../../utils/preferences/preferences.dart';
 import '../../utils/themes/button.dart';
 import '../../utils/themes/contant_colors.dart';
 import '../../utils/themes/textfield_theme.dart';
@@ -70,7 +65,7 @@ class VehicleScreen extends StatelessWidget {
                                           0
                                       ? null
                                       : controller.selectedVehicleTypeId.value,
-                                  hint: const Text('Select Vehicle Type'),
+                                  hint: Text('select vehicle type'.tr),
                                   decoration: InputDecoration(
                                     contentPadding: const EdgeInsets.symmetric(
                                         vertical: 10, horizontal: 12),
@@ -186,8 +181,7 @@ class VehicleScreen extends StatelessWidget {
                                           .trim(),
                                       'password':
                                           controller.passwordController.text,
-                                      'mobile': controller.phoneController.text
-                                          .trim(),
+                                      'mobile': controller.phoneNumber.value,
                                       'license_no': controller.no.text.trim(),
                                       'brand': controller.brand.text.trim(),
                                       'vehicle_type_id':
@@ -204,10 +198,6 @@ class VehicleScreen extends StatelessWidget {
                                         .then((value) {
                                       if (value != null) {
                                         if (value.status == true) {
-                                        /*  Preferences.setInt(Preferences.userId, value.data!.user!.id!);
-                                          Preferences.setString(Preferences.user, jsonEncode(value));
-                                          Preferences.setString(Preferences.userName, value.data!.user!.name!);
-                                          Preferences.setString(Preferences.userEmail, value.data!.user!.email!);*/
                                           controller.clearData();
                                           Get.offAll(() => LoginScreen(),
                                               duration: const Duration(
@@ -286,7 +276,7 @@ class VehicleScreen extends StatelessWidget {
                                 Transition.rightToLeft); //transition effect);
                       },
                   ),
-                  TextSpan(
+                  const TextSpan(
                     text: ' \u200B\u200B\u200B',
                     style: TextStyle(color: Colors.blue, fontSize: 20),
                   ),

@@ -13,14 +13,14 @@ class NotificationScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title: const Column(
+        title:  Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
-                  'Notification',
+                  'notification'.tr,
                   style: CustomTextStyles.header,
                 ),
               ],

@@ -10,7 +10,6 @@ import '../constant/constant.dart';
 import '../constant/show_dialog.dart';
 import '../models/user_model.dart';
 import '../service/api.dart';
-import '../utils/preferences/preferences.dart';
 
 class MyProfileController extends GetxController {
   RxString name = "".obs;
@@ -36,7 +35,7 @@ class MyProfileController extends GetxController {
 
   Future<dynamic> updateName(Map<String, String> bodyParams) async {
     try {
-      ShowDialog.showLoader("Please wait");
+      ShowDialog.showLoader('please_wait'.tr);
       final response = await http.post(Uri.parse(API.updateName),
           headers: API.header, body: jsonEncode(bodyParams));
       Map<String, dynamic> responseBody = json.decode(response.body);
@@ -48,8 +47,8 @@ class MyProfileController extends GetxController {
       } else {
         ShowDialog.closeLoader();
         ShowDialog.showToast(
-            'Something want wrong. Please try again later');
-        throw Exception('Failed to load album');
+            'Something want wrong. Please try again later'.tr);
+        throw Exception('Failed to load album'.tr);
       }
     } on TimeoutException catch (e) {
       ShowDialog.closeLoader();
@@ -69,7 +68,7 @@ class MyProfileController extends GetxController {
 
   Future<dynamic> updatePassword(Map<String, String> bodyParams) async {
     try {
-      ShowDialog.showLoader("Please wait");
+      ShowDialog.showLoader('please_wait'.tr);
       bodyParams['new_password_confirmation'] = bodyParams['new_password']!;
 
       final response = await http.post(
@@ -88,21 +87,21 @@ class MyProfileController extends GetxController {
         if (responseBody['status'] == true) {
           return responseBody;
         } else {
-          String errorMessage = responseBody['message'] ?? 'Password update failed.';
+          String errorMessage = responseBody['message'] ?? 'Password update failed.'.tr;
           ShowDialog.showToast(errorMessage);
           return null;
         }
       } else {
-        String errorMessage = responseBody['message'] ?? 'Something went wrong. Please try again later.';
+        String errorMessage = responseBody['message'] ?? 'Something went wrong. Please try again later.'.tr;
         ShowDialog.showToast(errorMessage);
         throw Exception('Failed to update password: $errorMessage');
       }
     } on TimeoutException catch (e) {
       ShowDialog.closeLoader();
-      ShowDialog.showToast('Request timed out. Please try again.');
+      ShowDialog.showToast('Request timed out. Please try again.'.tr);
     } on SocketException catch (e) {
       ShowDialog.closeLoader();
-      ShowDialog.showToast('No Internet connection. Please check your network.');
+      ShowDialog.showToast('No Internet connection. Please check your network.'.tr);
     } catch (e) {
       ShowDialog.closeLoader();
       ShowDialog.showToast('An unexpected error occurred: $e');
@@ -113,7 +112,7 @@ class MyProfileController extends GetxController {
 
   Future<dynamic> deleteAccount() async {
     try {
-      ShowDialog.showLoader("Please wait");
+      ShowDialog.showLoader('please_wait'.tr);
       final response = await http.delete(
         Uri.parse(API.deleteUser),
         headers: API.header,
@@ -128,8 +127,8 @@ class MyProfileController extends GetxController {
       } else {
         ShowDialog.closeLoader();
         ShowDialog.showToast(
-            'Something want wrong. Please try again later');
-        throw Exception('Failed to load data');
+            'Something want wrong. Please try again later'.tr);
+        throw Exception('Failed to load data'.tr);
       }
     } on TimeoutException catch (e) {
       ShowDialog.closeLoader();

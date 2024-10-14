@@ -2,6 +2,7 @@ import 'package:driverapp/constant/constant.dart';
 import 'package:driverapp/views/auth_screens/vehicle_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import '../../controllers/signup_controller.dart';
 import '../../utils/themes/button.dart';
 import '../../utils/themes/contant_colors.dart';
@@ -59,7 +60,7 @@ class SignUpScreen extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: TextFieldTheme.boxBuildTextField(
-                                  hintText: 'Name'.tr,
+                                  hintText: 'full name'.tr,
                                   controller: controller.nameController,
                                   textInputType: TextInputType.text,
                                   maxLength: 22,
@@ -76,18 +77,33 @@ class SignUpScreen extends StatelessWidget {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 16),
-                            child: TextFieldTheme.boxBuildTextField(
-                              hintText: 'phone'.tr,
-                              controller: controller.phoneController,
-                              textInputType: TextInputType.number,
-                              maxLength: 13,
-                              validators: (String? value) {
-                                if (value!.isNotEmpty) {
-                                  return null;
-                                } else {
-                                  return 'required'.tr;
-                                }
-                              },
+                            child:Container(
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: ConstantColors.textFieldBoarderColor,
+                                  ),
+                                  borderRadius:
+                                  const BorderRadius.all(Radius.circular(12))),
+                              padding: const EdgeInsets.only(left: 10),
+                              child: InternationalPhoneNumberInput(
+                                onInputChanged: (PhoneNumber number) {
+                                  controller.phoneNumber.value =
+                                      number.phoneNumber.toString();
+                                },
+                                onInputValidated: (bool value) =>
+                                controller.isPhoneValid.value = value,
+                                ignoreBlank: true,
+                                autoValidateMode:
+                                AutovalidateMode.onUserInteraction,
+                                initialValue: PhoneNumber(isoCode: 'VN'),
+                                inputDecoration: InputDecoration(
+                                  hintText: 'phone number'.tr,
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                ),
+                                selectorConfig: const SelectorConfig(
+                                    selectorType: PhoneInputSelectorType.DIALOG),
+                              ),
                             ),
                           ),
                           Padding(
@@ -198,29 +214,6 @@ class SignUpScreen extends StatelessWidget {
                                       duration:
                                           const Duration(milliseconds: 400),
                                       transition: Transition.rightToLeft);
-                                  /*FocusScope.of(context).unfocus();
-                                  if (_formKey.currentState!.validate()) {
-                                    Map<String, String> bodyParams = {
-                                      'name': controller.nameController.text.trim(),
-                                      'email': controller.emailController.text.trim(),
-                                      'password': controller.passwordController.text,
-                                      'mobile': controller.phoneController.text.trim(),
-                                      'user_type': 'driver',
-                                    };
-                                    await controller.signUp(bodyParams).then((value) {
-                                      if (value != null) {
-                                        if (value.status == true) {
-                                          _nameController.clear();
-                                          _emailController.clear();
-                                          _passwordController.clear();
-                                          _phoneController.clear();
-                                          Get.to(() => LoginScreen());
-                                        } else {
-                                          ShowDialog.showToast(value.error);
-                                        }
-                                      }
-                                    });
-                                  }*/
                                 },
                               )),
                         ],

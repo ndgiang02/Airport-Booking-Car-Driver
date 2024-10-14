@@ -16,7 +16,7 @@ class SupportScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'support'.tr,
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
         ),
       ),
       body: SingleChildScrollView(
@@ -29,9 +29,9 @@ class SupportScreen extends StatelessWidget {
                   onPress: () {
                     CustomAlert.showCustomDialog(
                         context: context,
-                        title: 'Hỗ trợ qua điện thoại',
+                        title: 'help via phone'.tr,
                         content: 'Bạn có muốn gọi 113 không?',
-                        callButtonText: 'Call',
+                        callButtonText: 'call'.tr,
                         onCallPressed: () {
                           final phoneNumber = "113";
                           launch("tel://$phoneNumber");
@@ -42,8 +42,8 @@ class SupportScreen extends StatelessWidget {
                 icon: LineAwesomeIcons.mail_bulk_solid,
                 onPress: () async {
                   final String email = Constant.contactUsEmail;
-                  final String subject = 'Contact Us';
-                  final String body = 'Hello, I would like to...';
+                  const String subject = 'Contact Us';
+                  const String body = 'Hello, I would like to...';
 
                   final Uri emailUri = Uri(
                     scheme: 'mailto',

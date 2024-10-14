@@ -1,50 +1,40 @@
-
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
-import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-
 import '../../constant/show_dialog.dart';
-import '../../service/api.dart';
-
-
-
-
-
-import 'dart:async';
-import 'dart:io';
-
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-
-import '../constant/show_dialog.dart';
-import '../service/fakeapi.dart';
+import '../service/api.dart';
 
 class TermsOfServiceController extends GetxController {
+
+  var termsContent = ''.obs;
+  var isLoading = true.obs;
+
   @override
   void onInit() {
     getTermsOfService();
     super.onInit();
   }
 
-  dynamic data;
-
   Future<void> getTermsOfService() async {
     try {
-      ShowDialog.showLoader("Please wait");
+      ShowDialog.showLoader('please_wait'.tr);
+      final response = await http.get(
+        Uri.parse(API.terms),
+        headers: API.header,
+      );
+      Map<String, dynamic> responseBody = json.decode(response.body);
 
-      // Sử dụng FakeAPI để lấy dữ liệu
-     final responseBody = await FakeAPI.getTermsOfService();
-
-      if (responseBody['status'] == 'success') {
-        data = responseBody['data']['terms'];
-        print("Data loaded: $data");  // In dữ liệu để kiểm tra
+      if (responseBody['status'] == true) {
+        termsContent.value = responseBody['data']['terms'];
         ShowDialog.closeLoader();
         update();
       } else {
         ShowDialog.closeLoader();
-        ShowDialog.showToast('Failed to load terms of service');
+        ShowDialog.showToast('Failed to load terms of service'.tr);
       }
     } on TimeoutException catch (e) {
       ShowDialog.closeLoader();
