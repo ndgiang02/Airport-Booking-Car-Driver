@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/wallet_controller.dart';
@@ -16,7 +18,8 @@ class _MyWalletScreenState extends State<MyWalletScreen> {
 
     return Scaffold(
       body: Obx(() {
-        if (walletController.balance.value == null && walletController.transactions.value == null) {
+        log('transaction: ${walletController.transactions}');
+        if (walletController.transactions.isEmpty) {
           return  Center(child: Text('no_information_wallet'.tr));
         } else {
           return Column(

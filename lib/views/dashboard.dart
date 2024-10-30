@@ -1,11 +1,12 @@
+import 'package:driverapp/constant/show_dialog.dart';
 import 'package:driverapp/utils/themes/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../constant/constant.dart';
 import '../controllers/dashboard_controller.dart';
-import '../controllers/notification_controller.dart';
 import '../utils/preferences/preferences.dart';
+import 'notifition_screen/notifition_screen.dart';
 
 class Dashboard extends StatelessWidget {
 
@@ -14,30 +15,35 @@ class Dashboard extends StatelessWidget {
 
   DateTime backPress = DateTime.now();
 
+  Future<bool> customLogic() async {
+    final timeGap = DateTime.now().difference(backPress);
+    final cantExit = timeGap >= const Duration(seconds: 2);
+    backPress = DateTime.now();
+    if (cantExit) {
+      ShowDialog.showToast('Press Back button again to Exit'.tr,);
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetX<DashBoardController>(
       init: DashBoardController(),
       builder: (controller) {
         controller.getDrawerItem();
-        return WillPopScope(
-          onWillPop: () async {
-            final timeGap = DateTime.now().difference(backPress);
-            final cantExit = timeGap >= const Duration(seconds: 2);
-            backPress = DateTime.now();
-            if (cantExit) {
-              final snack = SnackBar(
-                content: Text(
-                  'Press Back button again to Exit'.tr,
-                  style: const TextStyle(color: Colors.white),
-                ),
-                duration: const Duration(seconds: 2),
-                backgroundColor: Colors.black,
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snack);
-              return false;
-            } else {
-              return true;
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            {
+              if (didPop) {
+                return;
+              }
+              final shouldPop = await customLogic() ?? false;
+              if (context.mounted && shouldPop == true) {
+                Navigator.pop(context);
+              }
             }
           },
           child: Scaffold(
@@ -83,7 +89,7 @@ class Dashboard extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: GestureDetector(
                     onTap: () {
-                      //notifController.toggleNotification();
+                      Get.to(()=> NotificationScreen());
                     },
                     child: Container(
                       padding: const EdgeInsets.all(4.0),
@@ -145,7 +151,7 @@ class Dashboard extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Text(
-                'V : ${Constant.appVersion.toString()}',
+                '${'version'.tr}: ${Constant.appVersion}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),

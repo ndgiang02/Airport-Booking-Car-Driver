@@ -13,10 +13,10 @@ class Transaction {
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
-      id: json['id'],
+      id: json['id'].toString(),
       type: json['type'],
-      amount: json['amount'].toDouble(),
-      date: DateTime.parse(json['date']),
+      amount: double.parse(json['amount']),
+      date: DateTime.parse(json['created_at']),
     );
   }
 }

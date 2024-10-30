@@ -76,13 +76,8 @@ class MyProfileController extends GetxController {
         headers: API.header,
         body: jsonEncode(bodyParams),
       );
-
-      log('Response body: ${response.body}');
-
       Map<String, dynamic> responseBody = json.decode(response.body);
-
       ShowDialog.closeLoader();
-
       if (response.statusCode == 200) {
         if (responseBody['status'] == true) {
           return responseBody;
@@ -96,12 +91,6 @@ class MyProfileController extends GetxController {
         ShowDialog.showToast(errorMessage);
         throw Exception('Failed to update password: $errorMessage');
       }
-    } on TimeoutException catch (e) {
-      ShowDialog.closeLoader();
-      ShowDialog.showToast('Request timed out. Please try again.'.tr);
-    } on SocketException catch (e) {
-      ShowDialog.closeLoader();
-      ShowDialog.showToast('No Internet connection. Please check your network.'.tr);
     } catch (e) {
       ShowDialog.closeLoader();
       ShowDialog.showToast('An unexpected error occurred: $e');

@@ -3,9 +3,7 @@ import 'package:driverapp/utils/themes/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-
 import '../../constant/show_dialog.dart';
-import '../../utils/themes/reponsive.dart';
 
 class LocalizationScreen extends StatelessWidget {
   const LocalizationScreen({super.key});

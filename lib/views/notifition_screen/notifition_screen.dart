@@ -1,32 +1,26 @@
-import 'package:driverapp/utils/themes/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/notification_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/themes/reponsive.dart';
+import '../../utils/themes/text_style.dart';
 
 class NotificationScreen extends StatelessWidget {
-  final NotificationController controller = Get.find<NotificationController>();
+
+  final NotificationController controller = Get.put(NotificationController());
+
   NotificationScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title:  Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const SizedBox(width: 8),
-                Text(
-                  'notification'.tr,
-                  style: CustomTextStyles.header,
-                ),
-              ],
-            ),
-          ],
+        title:Text(
+          'notification'.tr,
+          style: CustomTextStyles.app,
         ),
+        centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -46,7 +40,7 @@ class NotificationScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final notification = controller.notifications.reversed.toList()[index];
                   return Material(
-                    elevation: 1,
+                    elevation: 1, // Shadow effect
                     borderRadius: BorderRadius.circular(12),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
@@ -73,22 +67,22 @@ class NotificationScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      notification['title'] ?? '',
-                                      style: CustomTextStyles.normal,
+                                        notification.title,
+                                        style: CustomTextStyles.normal
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      notification['message'] != null && notification['message']!.length > 100
-                                          ? '${notification['message']!.substring(0, 100)}...'
-                                          : notification['message'] ?? '',
+                                      notification.message.length > 100
+                                          ? '${notification.message.substring(0, 100)}...'
+                                          : notification.message,
                                       style: CustomTextStyles.body,
                                     ),
                                     const SizedBox(height: 8),
                                     Align(
                                       alignment: Alignment.bottomRight,
                                       child: Text(
-                                        notification['formattedDate'] ?? '',
-                                        style: CustomTextStyles.small,
+                                          notification.formattedDate,
+                                          style: CustomTextStyles.small
                                       ),
                                     ),
                                   ],

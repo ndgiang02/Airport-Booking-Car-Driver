@@ -93,7 +93,7 @@ class MyApp extends StatelessWidget {
           fontFamily: 'SFPro',
         ),
         debugShowCheckedModeBanner: false,
-        locale: locale,
+        locale: Get.deviceLocale,
         fallbackLocale: const Locale('vi', 'VN'),
         translations: AppTranslations(),
         builder: EasyLoading.init(),

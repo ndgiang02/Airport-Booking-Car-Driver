@@ -28,16 +28,13 @@ class Constant {
   static String kGoogleApiKey = "";
   static String distanceUnit = "KM";
   static String durationUnit = "min";
-  static String appVersion = "0.1";
+  static String appVersion = "1,0";
   static LocationData? currentLocation;
 
   static int decimal = 2;
   static int taxValue = 0;
   static String currency = "\$";
-  static String taxType = 'Percentage';
-  static String taxName = 'Tax';
   static String contactUsEmail = "giang@gmail.com", contactUsAddress = "HCMC", contactUsPhone = "";
-  static String rideOtp = "yes";
   static bool symbolAtRight = false;
   static String driverLocationUpdate = "10";
   static String deliverChargeParcel = "0";
@@ -68,7 +65,7 @@ class Constant {
       if (Constant.symbolAtRight == true) {
         return "${double.parse(amount.toString()).toStringAsFixed((Constant.decimal))} ${Constant.currency.toString()}";
       } else {
-        return "${Constant.currency.toString()} ${double.parse(amount.toString()).toStringAsFixed(Constant.decimal!)}";
+        return "${Constant.currency.toString()} ${double.parse(amount.toString()).toStringAsFixed(Constant.decimal)}";
       }
     } else {
       if (Constant.symbolAtRight == true) {

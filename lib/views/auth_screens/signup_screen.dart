@@ -9,10 +9,9 @@ import '../../utils/themes/contant_colors.dart';
 import '../../utils/themes/textfield_theme.dart';
 
 class SignUpScreen extends StatelessWidget {
-  SignUpScreen({Key? key}) : super(key: key);
 
+  SignUpScreen({super.key});
   static final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   final controller = Get.put(SignUpController());
 
   @override

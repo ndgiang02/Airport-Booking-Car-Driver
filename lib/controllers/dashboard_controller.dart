@@ -6,7 +6,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vietmap_flutter_gl/vietmap_flutter_gl.dart';
 
 import '../utils/preferences/preferences.dart';
 import '../views/auth_screens/login_screen.dart';
@@ -18,11 +17,7 @@ import '../views/support_screens/support_screen.dart';
 import '../views/termpolicy_screen/term_policy_screen.dart';
 
 class DashBoardController extends GetxController {
-
-
   RxBool isActive = true.obs;
-
-  VietmapController? mapController;
 
   @override
   void onInit() {
@@ -41,10 +36,10 @@ class DashBoardController extends GetxController {
         'home'.tr,
         CupertinoIcons.car_detailed,
       ),
-      DrawerItem('History'.tr, Icons.history_toggle_off),
+      DrawerItem('history'.tr, Icons.history_toggle_off),
       DrawerItem('my_profile'.tr, Icons.person_outline),
       DrawerItem('vehicle_info'.tr, Icons.car_rental_sharp),
-      DrawerItem('My Earnings'.tr, Icons.account_balance_wallet_outlined),
+      DrawerItem('wallet'.tr, Icons.account_balance_wallet_outlined),
       DrawerItem('select_language'.tr, Icons.language),
       DrawerItem('contact_us'.tr, Icons.rate_review_outlined),
       DrawerItem('term_policy'.tr, Icons.design_services),
@@ -52,7 +47,6 @@ class DashBoardController extends GetxController {
       DrawerItem('sign_out'.tr, Icons.logout),
     ];
   }
-
 
   RxInt selectedDrawerIndex = 0.obs;
   var drawerItems = [];
@@ -68,6 +62,7 @@ class DashBoardController extends GetxController {
     getDrawerItem();
     Get.back();
   }
+
   getDrawerItemWidget(int pos) {
     if (pos >= drawerItems.length || pos < 0) {
       return const Text("Error");
@@ -80,7 +75,7 @@ class DashBoardController extends GetxController {
       case 2:
         return MyProfileScreen();
       case 3:
-        return  const VehicleScreen();
+        return const VehicleScreen();
       case 4:
         return const MyWalletScreen();
       case 5:
@@ -90,11 +85,9 @@ class DashBoardController extends GetxController {
       case 7:
         return const TermsOfServiceScreen();
       case 8:
-        return IntroScreen();
+        return const IntroScreen();
       default:
-        return  Text('error'.tr);
+        return Text('error'.tr);
     }
   }
-
-
 }

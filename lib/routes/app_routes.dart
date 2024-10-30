@@ -3,7 +3,6 @@ import 'package:driverapp/bindings/home_binding/home_binding.dart';
 import 'package:driverapp/bindings/notification_binding/notification_binding.dart';
 import 'package:driverapp/bindings/vehicle_binding/vehicle_binding.dart';
 import 'package:driverapp/views/auth_screens/signup_screen.dart';
-import 'package:driverapp/views/dashboard.dart';
 import 'package:driverapp/views/home_screens/home_screen.dart';
 import 'package:driverapp/views/manage_screen/profile_screen.dart';
 import 'package:driverapp/views/notifition_screen/notification_detail.dart';
@@ -93,7 +92,7 @@ class AppRoutes {
     ),
     GetPage(
       name: vehicleScreen,
-      page: () => VehicleScreen(),
+      page: () => const VehicleScreen(),
       bindings: [
         VehicleBinding(),
       ],

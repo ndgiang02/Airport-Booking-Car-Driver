@@ -5,7 +5,7 @@ import '../../models/notification_model.dart';
 class NotificationDetailScreen extends StatelessWidget {
   final NotificationModel notification ;
 
-  const NotificationDetailScreen({Key? key, required this.notification}) : super(key: key);
+  const NotificationDetailScreen({super.key, required this.notification});
 
   @override
   Widget build(BuildContext context) {

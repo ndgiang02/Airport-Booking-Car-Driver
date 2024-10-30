@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,7 +9,6 @@ import 'package:http/http.dart' as http;
 import '../constant/show_dialog.dart';
 import '../models/user_model.dart';
 import '../service/api.dart';
-import '../utils/preferences/preferences.dart';
 
 class SignUpController extends GetxController {
 
@@ -88,14 +86,7 @@ class SignUpController extends GetxController {
         ShowDialog.closeLoader();
         ShowDialog.showToast('Invalid response format from server.'.tr);
       }
-    } on TimeoutException catch (e) {
-      ShowDialog.closeLoader();
-      ShowDialog.showToast('Request timed out. Please try again.'.tr);
-    } on SocketException catch (e) {
-      ShowDialog.closeLoader();
-      ShowDialog.showToast(
-          'No internet connection. Please check your network.'.tr);
-    } on FormatException catch (e) {
+    }  on FormatException catch (e) {
       ShowDialog.closeLoader();
       ShowDialog.showToast('Invalid response format: ${e.message}');
     } catch (e) {

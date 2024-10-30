@@ -9,6 +9,7 @@ import '../../constant/constant.dart';
 import '../../constant/show_dialog.dart';
 import '../../service/navigation.dart';
 import '../../utils/themes/button.dart';
+import '../../utils/themes/contant_colors.dart';
 import '../../utils/themes/dialog_box.dart';
 import '../../utils/themes/text_style.dart';
 
@@ -89,7 +90,6 @@ class HomeState extends State<HomeScreen> {
               if (value != null) {
                 if (value['status'] == true) {
                   controller.isAvailable.value = value['data']['available'];
-                  log('${controller.isAvailable.value}');
                 }
               } else {
                 log('Error: Received null response');
@@ -127,7 +127,7 @@ class HomeState extends State<HomeScreen> {
           transitionBuilder: (Widget child, Animation<double> animation) {
             return FadeTransition(opacity: animation, child: child);
           },
-          child: controller.tripData.value.isNotEmpty
+          child: controller.tripData.isNotEmpty
               ? _buildCurrentSheet(controller.currentSheetIndex.value)
               : const SizedBox.shrink(),
         );
@@ -142,11 +142,7 @@ class HomeState extends State<HomeScreen> {
       case 1:
         return buildStartTrip();
       case 2:
-        return tripDetail();
-      case 3:
-        return buildTrip();
-      case 4:
-        return buildClusterTrip();
+        return buildCompletedTrip();
       default:
         return const SizedBox.shrink();
     }
@@ -155,7 +151,7 @@ class HomeState extends State<HomeScreen> {
   Widget buildConfirm() {
     return DraggableScrollableSheet(
       minChildSize: 0.15,
-      initialChildSize: 0.28,
+      initialChildSize: 0.3,
       maxChildSize: 0.5,
       builder: (context, scrollController) {
         return Container(
@@ -215,7 +211,8 @@ class HomeState extends State<HomeScreen> {
                                 size: 16, color: Colors.green),
                             const SizedBox(width: 4),
                             Text(
-                              controller.tripData['trip_type'],
+                              _getTripTypeDisplay(
+                                  controller.tripData['trip_type']),
                               style: CustomTextStyles.regular.copyWith(
                                   fontSize: 14, color: Colors.green[700]),
                             ),
@@ -227,42 +224,96 @@ class HomeState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(
-                height: 10,
+                height: 20,
               ),
-              ButtonThem.buildCustomButton(
-                label: 'confirmed'.tr,
-                onPressed: () async {
-                  String? trip = controller.tripData['trip_id'];
-                  String? clusterId = controller.tripData['cluster_id'];
-                  if (clusterId != null && clusterId.isNotEmpty) {
-                    await controller.acceptClusterTrip(clusterId).then((value) {
-                      if (value != null) {
-                        if (value['status'] == true) {
-                          controller.updateClusterInfo(value['data']);
-                          controller.drawClusterRoute(
-                              _mapController!, controller.pickupPoints);
-                          controller.currentSheetIndex.value = 1;
-                        } else {
-                          ShowDialog.showToast(value['message']);
-                        }
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: ButtonThem.buildIconButton(context,
+                        iconSize: 16.0,
+                        icon: Icons.arrow_back_ios,
+                        iconColor: Colors.black,
+                        btnHeight: 40,
+                        btnWidthRatio: 0.25,
+                        title: 'cancel'.tr,
+                        btnColor: ConstantColors.cyan,
+                        txtColor: Colors.black, onPress: () async {
+                      String? trip = controller.tripData['trip_id'];
+                      String? clusterId = controller.tripData['cluster_id'];
+                      if (clusterId != null && clusterId.isNotEmpty) {
+                        await controller
+                            .rejectClusterTrip(clusterId)
+                            .then((value) {
+                          if (value != null) {
+                            if (value['status'] == true) {
+                              ShowDialog.showToast(
+                                  'Trip rejected successfully'.tr);
+                            } else {
+                              ShowDialog.showToast(value['message']);
+                            }
+                          }
+                        });
+                      } else {
+                        await controller.rejectTrip(trip!).then((value) {
+                          if (value != null) {
+                            if (value['status'] == true) {
+                              controller.currentSheetIndex.value = -1;
+                              ShowDialog.showToast(
+                                  'Trip rejected successfully'.tr);
+                            } else {
+                              ShowDialog.showToast(value['message']);
+                            }
+                          }
+                        });
                       }
-                    });
-                  } else {
-                    await controller.acceptTrip(trip!).then((value) {
-                      if (value != null) {
-                        if (value.status == true) {
-                          controller.updateInfo(value);
-                          controller.drawClusterRoute(
-                              _mapController!, controller.pickupPoints);
-                          controller.currentSheetIndex.value = 1;
+                      Get.back();
+                    }),
+                  ),
+                  Expanded(
+                    child: ButtonThem.buildButton(
+                      context,
+                      btnHeight: 40,
+                      title: "confirmed".tr,
+                      btnColor: ConstantColors.primary,
+                      txtColor: Colors.white,
+                      onPress: () async {
+                        String? trip = controller.tripData['trip_id'];
+                        String? clusterId = controller.tripData['cluster_id'];
+                        if (clusterId != null && clusterId.isNotEmpty) {
+                          await controller
+                              .acceptClusterTrip(clusterId)
+                              .then((value) {
+                            if (value != null) {
+                              if (value['status'] == true) {
+                                controller.updateClusterInfo(value['data']);
+                                controller.drawClusterRoute(
+                                    _mapController!, controller.pickupPoints);
+                                controller.currentSheetIndex.value = 1;
+                              } else {
+                                ShowDialog.showToast(value['message']);
+                              }
+                            }
+                          });
                         } else {
-                          ShowDialog.showToast(value.message);
+                          await controller.acceptTrip(trip!).then((value) {
+                            if (value != null) {
+                              if (value.status == true) {
+                                controller.updateInfo(value);
+                                controller.drawClusterRoute(
+                                    _mapController!, controller.pickupPoints);
+                                controller.currentSheetIndex.value = 1;
+                              } else {
+                                ShowDialog.showToast(value.message);
+                              }
+                            }
+                          });
                         }
-                      }
-                    });
-                  }
-                },
-              )
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         );
@@ -272,9 +323,9 @@ class HomeState extends State<HomeScreen> {
 
   Widget buildStartTrip() {
     return DraggableScrollableSheet(
-      initialChildSize: 0.43,
-      minChildSize: 0.43,
-      maxChildSize: 0.45,
+      initialChildSize: 0.33,
+      minChildSize: 0.33,
+      maxChildSize: 0.5,
       builder: (context, scrollController) {
         return Container(
           padding: const EdgeInsets.all(14),
@@ -314,7 +365,7 @@ class HomeState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'confirmed_pickup'.tr,
+                                'confirmed pickup'.tr,
                                 style: CustomTextStyles.header.copyWith(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
@@ -360,80 +411,111 @@ class HomeState extends State<HomeScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 20,
-                                      backgroundColor:
-                                          Colors.blueAccent.withOpacity(0.1),
-                                      child: const Icon(Icons.person,
-                                          color: Colors.blueAccent),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          passenger['name'],
-                                          style: CustomTextStyles.normal,
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 20,
+                                        backgroundColor:
+                                            Colors.blueAccent.withOpacity(0.1),
+                                        child: const Icon(Icons.person,
+                                            color: Colors.blueAccent),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            passenger['name'],
+                                            style: CustomTextStyles.normal,
+                                          ),
+                                          Text(
+                                            passenger['from_address'],
+                                            style:
+                                                CustomTextStyles.body.copyWith(
+                                              fontSize: 12,
+                                              color: Colors.grey[700],
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 10,),
+                                Flexible(
+                                  child: InkWell(
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.vertical(
+                                              top: Radius.circular(20)),
                                         ),
-                                        Text(
-                                          passenger['to_address'],
-                                          style: CustomTextStyles.body.copyWith(
-                                            fontSize: 12,
-                                            color: Colors.grey[700],
+                                        builder: (BuildContext context) {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: tripDetail(index),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.green.withOpacity(0.1),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: IconButton(
+                                            icon: const Icon(Icons.phone,
+                                                color: Colors.green),
+                                            iconSize: 17,
+                                            onPressed: () {
+                                              final phoneNumber =
+                                                  passenger['mobile'];
+                                              final encodedPhoneNumber =
+                                                  phoneNumber.replaceFirst(
+                                                      "+", "%2B");
+                                              launchUrl(Uri.parse(
+                                                  "tel://$encodedPhoneNumber"));
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue.withOpacity(0.1),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: IconButton(
+                                            icon: const Icon(Icons.message,
+                                                color: Colors.blue),
+                                            iconSize: 17,
+                                            onPressed: () async {
+                                              String phoneNumber =
+                                                  passenger['mobile'];
+                                              String smsUrl =
+                                                  'sms:$phoneNumber';
+
+                                              Uri smsUri = Uri.parse(smsUrl);
+
+                                              if (await canLaunchUrl(smsUri)) {
+                                                await launchUrl(smsUri);
+                                              } else {
+                                                log('Could not launch $smsUrl');
+                                              }
+                                            },
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.withOpacity(0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: IconButton(
-                                        icon: const Icon(Icons.phone,
-                                            color: Colors.green),
-                                        iconSize: 25,
-                                        onPressed: () {
-                                          final phoneNumber =
-                                              passenger['mobile'];
-                                          launchUrl(
-                                              Uri.parse("tel://$phoneNumber"));
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: IconButton(
-                                        icon: const Icon(Icons.message,
-                                            color: Colors.blue),
-                                        iconSize: 25,
-                                        onPressed: () async {
-                                          String phoneNumber =
-                                              passenger['mobile'];
-                                          String smsUrl = 'sms:$phoneNumber';
-
-                                          Uri smsUri = Uri.parse(smsUrl);
-
-                                          if (await canLaunchUrl(smsUri)) {
-                                            await launchUrl(smsUri);
-                                          } else {
-                                            log('Could not launch $smsUrl');
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -446,7 +528,7 @@ class HomeState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
               ButtonThem.buildCustomButton(
-                label: 'start'.tr,
+                label: 'confirm'.tr,
                 onPressed: () async {
                   String? trip = controller.tripData['trip_id'];
                   String? clusterId = controller.tripData['cluster_id'];
@@ -456,7 +538,7 @@ class HomeState extends State<HomeScreen> {
                         if (value['status'] == true) {
                           controller.drawClusterRoute(
                               _mapController!, controller.destinationPoints);
-                          controller.currentSheetIndex.value = 4;
+                          controller.currentSheetIndex.value = 2;
                         } else {
                           ShowDialog.showToast(value['message']);
                         }
@@ -471,7 +553,7 @@ class HomeState extends State<HomeScreen> {
                               controller.pickupPoints.first,
                               controller.destinationPoints.last,
                               stops: controller.stops);
-                          controller.currentSheetIndex.value = 3;
+                          controller.currentSheetIndex.value = 2;
                         } else {
                           ShowDialog.showToast(value['message']);
                         }
@@ -487,10 +569,10 @@ class HomeState extends State<HomeScreen> {
     );
   }
 
-  Widget buildClusterTrip() {
+  Widget buildCompletedTrip() {
     return DraggableScrollableSheet(
-      initialChildSize: 0.43,
-      minChildSize: 0.43,
+      initialChildSize: 0.35,
+      minChildSize: 0.35,
       maxChildSize: 0.45,
       builder: (context, scrollController) {
         return Container(
@@ -616,12 +698,14 @@ class HomeState extends State<HomeScreen> {
                                       child: IconButton(
                                         icon: const Icon(Icons.phone,
                                             color: Colors.green),
-                                        iconSize: 25,
+                                        iconSize: 20,
                                         onPressed: () {
                                           final phoneNumber =
                                               passenger['mobile'];
-                                          launchUrl(
-                                              Uri.parse("tel://$phoneNumber"));
+                                          final encodedPhoneNumber = phoneNumber
+                                              .replaceFirst("+", "%2B");
+                                          launchUrl(Uri.parse(
+                                              "tel://$encodedPhoneNumber"));
                                         },
                                       ),
                                     ),
@@ -634,7 +718,7 @@ class HomeState extends State<HomeScreen> {
                                       child: IconButton(
                                         icon: const Icon(Icons.message,
                                             color: Colors.blue),
-                                        iconSize: 25,
+                                        iconSize: 20,
                                         onPressed: () async {
                                           String phoneNumber =
                                               passenger['mobile'];
@@ -656,249 +740,6 @@ class HomeState extends State<HomeScreen> {
                           );
                         },
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              ButtonThem.buildCustomButton(
-                label: 'start'.tr,
-                onPressed: () async {
-                  String? trip = controller.tripData['trip_id'];
-                  String? clusterId = controller.tripData['cluster_id'];
-                  if (clusterId != null && clusterId.isNotEmpty) {
-                    await controller
-                        .completeClusterTrip(clusterId)
-                        .then((value) {
-                      if (value != null) {
-                        if (value['status'] == true) {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return CustomDialogBox(
-                                title: controller.tripData['payment'] == 'cash'
-                                    ? 'cash'.tr
-                                    : 'wallet'.tr,
-                                descriptions: controller.tripData['payment'] ==
-                                    'cash'
-                                    ? '${controller.tripData['total_amount']} VND'
-                                    : '0 VND',
-                                onPress: () {
-                                  controller.clearData();
-                                  _mapController?.clearLines();
-                                  Get.back();
-                                },
-                                img: Image.asset(
-                                  'assets/images/green_checked.png',
-                                  scale: 0.6,
-                                ),
-                              );
-                            },
-                          );
-                        } else {
-                          ShowDialog.showToast(value['message']);
-                        }
-                      }
-                    });
-                  } else {
-                    await controller.completeTrip(trip!).then((value) {
-                      if (value != null) {
-                        if (value['status'] == true) {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return CustomDialogBox(
-                                title: controller.tripData['payment'] == 'cash'
-                                    ? 'cash'.tr
-                                    : 'wallet'.tr,
-                                descriptions: controller.tripData['payment'] ==
-                                        'cash'
-                                    ? '${controller.tripData['total_amount']} VND'
-                                    : '0 VND',
-                                onPress: () {
-                                  controller.clearData();
-                                  _mapController?.clearLines();
-                                  Get.back();
-                                },
-                                img: Image.asset(
-                                  'assets/images/green_checked.png',
-                                  scale: 0.6,
-                                ),
-                              );
-                            },
-                          );
-                        } else {
-                          ShowDialog.showToast(value['message']);
-                        }
-                      }
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget buildTrip() {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.43,
-      minChildSize: 0.43,
-      maxChildSize: 0.45,
-      builder: (context, scrollController) {
-        return Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 3,
-                blurRadius: 7,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        width: 40,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'to'.tr,
-                                style: CustomTextStyles.header.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Transform.rotate(
-                              angle: 0.785398,
-                              child: IconButton(
-                                icon: Icon(Icons.navigation,
-                                    color: Colors.blue[700]),
-                                onPressed: () {
-                                  openMaps(
-                                    pickup: controller.pickupPoints.first,
-                                    destination:
-                                        controller.destinationPoints.last,
-                                    stops: controller.stopsPoints,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Divider(
-                        color: Colors.blueAccent,
-                        thickness: 1,
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor:
-                                      Colors.blueAccent.withOpacity(0.1),
-                                  child: const Icon(Icons.person,
-                                      color: Colors.blueAccent),
-                                ),
-                                const SizedBox(width: 10),
-                                Text(controller.customerName.value,
-                                    style: CustomTextStyles.normal),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.withOpacity(0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: IconButton(
-                                        icon: const Icon(Icons.phone,
-                                            color: Colors.green),
-                                        iconSize: 25,
-                                        onPressed: () {
-                                          final phoneNumber =
-                                              controller.customerMobile.value;
-                                          Uri smsUri =
-                                              Uri.parse('sms:$phoneNumber');
-                                          launchUrl(smsUri);
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: IconButton(
-                                        icon: const Icon(Icons.message,
-                                            color: Colors.blue),
-                                        iconSize: 25,
-                                        onPressed: () async {
-                                          String phoneNumber =
-                                              controller.customerMobile.value;
-                                          Uri smsUri =
-                                              Uri.parse('sms:$phoneNumber');
-
-                                          if (await canLaunchUrl(smsUri)) {
-                                            await launchUrl(smsUri);
-                                          } else {
-                                            log('Could not launch $smsUri');
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Divider(
-                        color: Colors.blueAccent,
-                        thickness: 1,
-                        height: 20,
-                      ),
                       if (controller.tripData['stops'] != null &&
                           controller.tripData['stops'].isNotEmpty)
                         Expanded(
@@ -916,57 +757,18 @@ class HomeState extends State<HomeScreen> {
                             },
                           ),
                         ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child:
-                                const Icon(Icons.flag, color: Colors.redAccent),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                    ' ${controller.tripData['to_address'] != null && controller.tripData['to_address'].length > 45 ? controller.tripData['to_address'].substring(0, 45) + '...' : controller.tripData['to_address'] ?? 'N/A'}',
-                                    style: CustomTextStyles.body),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.directions_car,
-                                        size: 18, color: Colors.green),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      controller.tripData['trip_type'],
-                                      style: CustomTextStyles.regular.copyWith(
-                                          fontSize: 14,
-                                          color: Colors.green[700]),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 12),
               ButtonThem.buildCustomButton(
-                label: 'start'.tr,
-                onPressed: () async {
-                  String trip = controller.tripData['trip_id'];
-                  await controller.completeTrip(trip).then((value) {
-                    if (value != null) {
-                      if (value['status'] == true) {
+                  label: 'confirm'.tr,
+                  onPressed: () async {
+                    String? trip = controller.tripData['trip_id'];
+                    String? clusterId = controller.tripData['cluster_id'];
+                    void showPaymentDialog() {
+                      if (mounted) {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -981,6 +783,7 @@ class HomeState extends State<HomeScreen> {
                               onPress: () {
                                 controller.clearData();
                                 _mapController?.clearLines();
+                                _mapController?.clearSymbols();
                                 Get.back();
                               },
                               img: Image.asset(
@@ -990,13 +793,33 @@ class HomeState extends State<HomeScreen> {
                             );
                           },
                         );
-                      } else {
-                        ShowDialog.showToast(value['message']);
                       }
                     }
-                  });
-                },
-              ),
+
+                    if (clusterId != null && clusterId.isNotEmpty) {
+                      await controller
+                          .completeClusterTrip(clusterId)
+                          .then((value) {
+                        if (value != null) {
+                          if (value['status'] == true) {
+                            showPaymentDialog();
+                          } else {
+                            ShowDialog.showToast(value['message']);
+                          }
+                        }
+                      });
+                    } else {
+                      await controller.completeTrip(trip!).then((value) {
+                        if (value != null) {
+                          if (value['status'] == true) {
+                            showPaymentDialog();
+                          } else {
+                            ShowDialog.showToast(value['message']);
+                          }
+                        }
+                      });
+                    }
+                  }),
             ],
           ),
         );
@@ -1004,122 +827,92 @@ class HomeState extends State<HomeScreen> {
     );
   }
 
-  Widget tripDetail() {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.4,
-      minChildSize: 0.4,
-      maxChildSize: 0.6,
-      builder: (context, scrollController) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 3,
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: SingleChildScrollView(
-            controller: scrollController,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  width: 50,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[400],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.blue[700]),
-                      onPressed: () {
-                        controller.currentSheetIndex.value = 1;
-                      },
-                    ),
-                    const Text(
-                      'Thông tin chuyến đi',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
-                ),
-                const Divider(
-                  color: Colors.blueAccent,
-                  thickness: 1,
-                  height: 25,
-                ),
-                buildInfoRow(
-                  icon: Icons.my_location,
-                  label: 'from'.tr,
-                  value: controller.tripData['from_address'] ?? 'N/A',
-                  valueColor: Colors.blueGrey,
-                ),
-                const SizedBox(height: 15),
-                buildInfoRow(
-                  icon: Icons.location_on,
-                  label: 'to'.tr,
-                  value: controller.tripData['to_address'] ?? 'N/A',
-                  valueColor: Colors.blueGrey,
-                ),
-                const SizedBox(height: 15),
-                buildInfoRow(
-                  icon: Icons.directions_car,
-                  label: 'distance',
-                  value: '${controller.tripData['km']} km' ?? 'N/A',
-                  valueColor: Colors.green[700],
-                ),
-                const SizedBox(height: 15),
-                buildInfoRow(
-                  icon: Icons.attach_money,
-                  label: 'Số tiền',
-                  value: '${controller.tripData['total_amount']} VND' ?? 'N/A',
-                  valueColor: Colors.red[700],
-                ),
-                const SizedBox(height: 15),
-                if (controller.stops.isNotEmpty)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'stoporder'.tr,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ...controller.stops.map((stop) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: buildInfoRow(
-                              icon: Icons.stop_circle,
-                              label: '',
-                              value: stop.address!,
-                              valueColor: Colors.orange[700],
-                            ),
-                          )),
-                    ],
-                  ),
-              ],
+  Widget tripDetail(int index) {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            width: 50,
+            height: 5,
+            decoration: BoxDecoration(
+              color: Colors.grey[400],
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
-        );
-      },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.blue[700]),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              Text('trip detail'.tr, style: CustomTextStyles.header),
+              const SizedBox(width: 48),
+            ],
+          ),
+          const Divider(
+            color: Colors.blueAccent,
+            thickness: 1,
+            height: 25,
+          ),
+          buildInfoRow(
+            icon: Icons.person,
+            label: 'name'.tr,
+            value: controller.tripDetails[index]['name'] ?? 'N/A',
+            valueColor: Colors.black,
+          ),
+          const SizedBox(height: 15),
+          buildInfoRow(
+            icon: Icons.my_location,
+            label: 'from'.tr,
+            value: controller.tripDetails[index]['from_address'] ?? 'N/A',
+            valueColor: Colors.black,
+          ),
+          const SizedBox(height: 15),
+          buildInfoRow(
+            icon: Icons.location_on,
+            label: 'to'.tr,
+            value: controller.tripDetails[index]['to_address'] ?? 'N/A',
+            valueColor: Colors.blueGrey,
+          ),
+          const SizedBox(height: 15),
+          buildInfoRow(
+            icon: Icons.attach_money,
+            label: 'estimated'.tr,
+            value: '${controller.tripDetails[index]['amount']} VND',
+            valueColor: Colors.red[700],
+          ),
+          const SizedBox(height: 15),
+          if (controller.stops.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'stoporder'.tr,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...controller.stops.map((stop) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: buildInfoRow(
+                        icon: Icons.stop_circle,
+                        label: '',
+                        value: stop.address!,
+                        valueColor: Colors.orange[700],
+                      ),
+                    )),
+              ],
+            ),
+        ],
+      ),
     );
   }
 
@@ -1200,5 +993,18 @@ class HomeState extends State<HomeScreen> {
         ),
       ],
     );
+  }
+
+  String _getTripTypeDisplay(String tripType) {
+    switch (tripType) {
+      case 'airport_private':
+        return 'airport_private'.tr;
+      case 'airport_sharing':
+        return 'airport_sharing'.tr;
+      case 'long_trip':
+        return 'longtrip'.tr;
+      default:
+        return 'Loại chuyến đi không xác định'.tr;
+    }
   }
 }

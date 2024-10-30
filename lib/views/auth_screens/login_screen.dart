@@ -186,7 +186,7 @@ class LoginScreen extends StatelessWidget {
           ),
         ),
         bottomNavigationBar: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage(login_background),
               fit: BoxFit.cover,

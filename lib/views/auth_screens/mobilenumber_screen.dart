@@ -11,7 +11,7 @@ import '../../utils/themes/contant_colors.dart';
 class MobileNumberScreen extends StatelessWidget {
   bool? isLogin;
 
-  MobileNumberScreen({Key? key, required this.isLogin}) : super(key: key);
+  MobileNumberScreen({super.key, required this.isLogin});
 
   final controller = Get.put(PhoneNumberController());
 
@@ -40,7 +40,7 @@ class MobileNumberScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          isLogin == true ? "login phone".tr : "signup phone".tr,
+                          isLogin == true ? "login_with_phone_number".tr : "signup phone".tr,
                           style: const TextStyle(
                               letterSpacing: 0.60,
                               fontSize: 22,
@@ -75,7 +75,7 @@ class MobileNumberScreen extends StatelessWidget {
                                   AutovalidateMode.onUserInteraction,
                               initialValue: PhoneNumber(isoCode: 'VN'),
                               inputDecoration: InputDecoration(
-                                hintText: 'phone'.tr,
+                                hintText: 'mobile'.tr,
                                 border: InputBorder.none,
                                 isDense: true,
                               ),

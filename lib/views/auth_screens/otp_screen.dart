@@ -14,10 +14,14 @@ import '../../utils/themes/contant_colors.dart';
 import '../dashboard.dart';
 
 class OtpScreen extends StatelessWidget {
-  String? phoneNumber;
-  String? verificationId;
+  final String phoneNumber;
+  final String verificationId;
 
-  OtpScreen({super.key, required this.phoneNumber, required this.verificationId});
+  OtpScreen({
+    super.key,
+    required this.phoneNumber,
+    required this.verificationId,
+  });
 
   final controller = Get.put(PhoneNumberController());
   final textEditingController = TextEditingController();
@@ -91,7 +95,7 @@ class OtpScreen extends StatelessWidget {
                               onPress: () async {
                                 FocusScope.of(context).unfocus();
                                 if (textEditingController.text.length == 6) {
-                                  ShowDialog.showLoader("Verify OTP");
+                                  ShowDialog.showLoader('Verify OTP'.tr);
                                   PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId.toString(), smsCode: textEditingController.text);
                                   await FirebaseAuth.instance.signInWithCredential(credential).then((value) async {
                                     Map<String, String> bodyParams = {
@@ -128,10 +132,10 @@ class OtpScreen extends StatelessWidget {
                                     });
                                   }).catchError((error) {
                                     ShowDialog.closeLoader();
-                                    ShowDialog.showToast("Code is Invalid");
+                                    ShowDialog.showToast('Code is Invalid'.tr);
                                   });
                                 } else {
-                                  ShowDialog.showToast("Please Enter OTP");
+                                  ShowDialog.showToast("Please Enter OTP".tr);
                                 }
                               },
                             ))

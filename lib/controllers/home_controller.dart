@@ -69,7 +69,6 @@ class HomeController extends GetxController {
     customerMobile.value = '';
   }
 
-
   updateInfo(TripModel trip) {
     pickupPoints.add(LatLng(trip.data!.fromLat!, trip.data!.fromLng!));
     destinationPoints.add(LatLng(trip.data!.toLat!, trip.data!.toLng!));
@@ -83,10 +82,11 @@ class HomeController extends GetxController {
     }
 
     tripDetails.add({
-      'name': tripData['customer_name'],
-      'mobile': tripData['mobile'],
+      'name': customerName.value,
+      'mobile': customerMobile.value,
       'from_address': trip.data?.fromAddress,
       'to_address': trip.data?.toAddress,
+      'amount': trip.data?.totalAmount,
     });
   }
 
@@ -108,6 +108,7 @@ class HomeController extends GetxController {
         'mobile': trip['mobile'],
         'from_address': trip['from_address'],
         'to_address': trip['to_address'],
+        'amount': trip['total_amount'],
       });
     }
   }
@@ -271,6 +272,44 @@ class HomeController extends GetxController {
     return null;
   }
 
+  Future<Map<String, dynamic>?> rejectClusterTrip(String clusterId) async {
+    try {
+      ShowDialog.showLoader('please_wait'.tr);
+      final response = await http.post(Uri.parse(API.rejectClusterTrip),
+        headers: API.header,
+        body: jsonEncode({
+          'cluster_id': clusterId,
+        }),
+      );
+      Map<String, dynamic> responseBody = json.decode(response.body);
+
+      log('Reject Trip : $responseBody');
+
+      ShowDialog.closeLoader();
+      if (response.statusCode == 200) {
+        if (responseBody['status'] == true) {
+          return responseBody;
+        } else {
+          String errorMessage = responseBody['message'];
+          ShowDialog.showToast(errorMessage);
+        }
+      } else {
+        ShowDialog.showToast('${response.statusCode}. Please try again later.');
+      }
+    } on TimeoutException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('Request timed out. Please try again.');
+    } on SocketException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast(
+          'No internet connection. Please check your network.'.tr);
+    } catch (e) {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('An unexpected error occurred: $e');
+    }
+    return null;
+  }
+
   Future<TripModel?> acceptTrip(String tripId) async {
     try {
       ShowDialog.showLoader('please_wait'.tr);
@@ -281,6 +320,8 @@ class HomeController extends GetxController {
         }),
       );
       Map<String, dynamic> responseBody = json.decode(response.body);
+      log('accecp trip $responseBody');
+
       ShowDialog.closeLoader();
       if (response.statusCode == 200) {
         if (responseBody['status'] == true) {
@@ -384,6 +425,44 @@ class HomeController extends GetxController {
     return null;
   }
 
+  Future<Map<String, dynamic>?> rejectTrip(String tripId) async {
+    try {
+      ShowDialog.showLoader('please_wait'.tr);
+      final response = await http.post(Uri.parse(API.rejectTrip),
+        headers: API.header,
+        body: jsonEncode({
+          'trip_id': tripId,
+        }),
+      );
+      Map<String, dynamic> responseBody = json.decode(response.body);
+
+      log('reject Trip : $responseBody');
+
+      ShowDialog.closeLoader();
+      if (response.statusCode == 200) {
+        if (responseBody['status'] == true) {
+          return responseBody;
+        } else {
+          String errorMessage = responseBody['message'];
+          ShowDialog.showToast(errorMessage);
+        }
+      } else {
+        ShowDialog.showToast('${response.statusCode}. Please try again later.');
+      }
+    } on TimeoutException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('Request timed out. Please try again.');
+    } on SocketException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast(
+          'No internet connection. Please check your network.');
+    } catch (e) {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('An unexpected error occurred: $e');
+    }
+    return null;
+  }
+
   Future<dynamic> updateDriverStatus(bodyParams) async {
     try {
       ShowDialog.showLoader('please_wait'.tr);
@@ -416,7 +495,7 @@ class HomeController extends GetxController {
     Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 20,
+        distanceFilter: 5,
       ),
     ).listen((Position position) {
       latitude.value = position.latitude;
@@ -612,6 +691,40 @@ class HomeController extends GetxController {
           zoomLevel,
         ),
       );
+    }
+  }
+
+  Future<void> logOut(Map<String, String> bodyParams) async {
+    try {
+      ShowDialog.showLoader('please_wait'.tr);
+      final response = await http.post(
+        Uri.parse(API.logOut),
+        headers: API.authheader,
+        body: jsonEncode(bodyParams),
+      );
+      Map<String, dynamic> responseBody = json.decode(response.body);
+      if (response.statusCode == 200) {
+        if (responseBody['status'] == true) {
+          ShowDialog.closeLoader();
+        } else {
+          String errorMessage =
+              responseBody['message'] ?? 'Login failed. Please try again.'.tr;
+          ShowDialog.showToast(errorMessage);
+        }
+      } else {
+        ShowDialog.showToast(
+            '${response.statusCode}. Please try again later.'.tr);
+      }
+    } on TimeoutException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('Request timed out. Please try again.'.tr);
+    } on SocketException {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast(
+          'No internet connection. Please check your network.'.tr);
+    } catch (e) {
+      ShowDialog.closeLoader();
+      ShowDialog.showToast('An unexpected error occurred: $e');
     }
   }
 }

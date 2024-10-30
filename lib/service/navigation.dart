@@ -19,8 +19,9 @@ void openMaps({
 
   url += '&destination=${destination.latitude},${destination.longitude}&travelmode=driving';
 
-  if (await canLaunch(url)) {
-    await launch(url);
+  final Uri uri = Uri.parse(url);
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   } else {
     log('Could not launch $url');
   }

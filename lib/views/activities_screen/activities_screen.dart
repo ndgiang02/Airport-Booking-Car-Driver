@@ -1,103 +1,39 @@
-import 'package:driverapp/utils/themes/contant_colors.dart';
 import 'package:driverapp/utils/themes/text_style.dart';
+import 'package:driverapp/views/activities_screen/trip_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/activities_controller.dart';
 import '../../models/trip_model.dart';
-import '../../utils/extensions/load.dart';
 
 class ActivitiesScreen extends StatelessWidget {
 
-  ActivitiesScreen({Key? key}) : super(key: key);
+  ActivitiesScreen({super.key});
 
   final ActivitiesController controller = Get.put(ActivitiesController());
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
+    return Scaffold(
         body: Column(
           children: [
-            SizedBox(
-              height: 50,
-              child: TabBar(
-                indicatorWeight: 1,
-                indicatorSize: TabBarIndicatorSize.tab,
-                tabs: const [
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.schedule),
-                        SizedBox(width: 5),
-                        Text(
-                          'Sắp tới',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.history),
-                        SizedBox(width: 5),
-                        Text(
-                          'Lịch sử',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                labelColor: ConstantColors.primary,
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: ConstantColors.primary,
-                labelPadding: EdgeInsets.symmetric(horizontal: 5.0),
-                onTap: (index) {
-                  controller.updateIndex(index);
-                },
-              ),
-            ),
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return Center(child: Loading());
-                }
-
-                return TabBarView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    buildTripList(controller.upcomingTrips),
-                    buildTripList(controller.historyTrips),
-                  ],
-                );
-              }),
-            ),
+            Obx(() => Expanded(
+              child: buildTripList(controller.historyTrips),
+            )),
           ],
         ),
-      ),
     );
   }
 
   Widget buildTripList(List<Trip> trips) {
     if (trips.isEmpty) {
-      return Center(child: Text("Không có chuyen di nao"));
+      return  Center(child: Text('No information'.tr));
     }
     return ListView.builder(
       itemCount: trips.length,
       itemBuilder: (context, index) {
         final trip = trips[index];
-        String formattedTime = DateFormat('HH:mm, dd/MM').format(trip.scheduledTime!);
+        String formattedTime = DateFormat('HH:mm, dd/MM').format(trip.fromTime!);
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Container(
@@ -129,14 +65,14 @@ class ActivitiesScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: _getStatusInfo(trip.tripStatus)['backgroundColor'],
+                          color: Colors.green[100]!,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          _getStatusInfo(trip.tripStatus)['statusText'],
-                          style: TextStyle(
+                          trip.tripStatus!.tr,
+                          style: const TextStyle(
                             fontSize: 14,
-                            color: _getStatusInfo(trip.tripStatus)['textColor'],
+                            color: Colors.green,
                           ),
                         ),
                       ),
@@ -172,8 +108,9 @@ class ActivitiesScreen extends StatelessWidget {
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    _getLimitedText(trip.fromAddress, 25),
+                                    trip.fromAddress!,
                                     style: const TextStyle(fontSize: 16, color: Colors.black54),
+                                    maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -186,9 +123,10 @@ class ActivitiesScreen extends StatelessWidget {
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    _getLimitedText(trip.toAddress, 25),
+                                    trip.toAddress!,
                                     style: const TextStyle(fontSize: 16, color: Colors.black54),
                                     overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
                                   ),
                                 ),
                               ],
@@ -225,14 +163,14 @@ class ActivitiesScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        trip.tripType == 'airport' ? 'airport'.tr : 'longtrip'.tr,
+                        _getTripTypeDisplay(trip.tripType!),
                         style: CustomTextStyles.normal,
                       ),
                       Row(
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              // Handle "Chi tiết"
+                              Get.to(() => const TripDetail(), arguments: trip);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
@@ -241,10 +179,10 @@ class ActivitiesScreen extends StatelessWidget {
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 14),
                             ),
-                            child: const Row(
+                            child:  Row(
                               children: [
-                                Text('Chi tiết', style: TextStyle(color: Colors.black)),
-                                Icon(Icons.chevron_right_rounded, color: Colors.black),
+                                Text('details'.tr, style: const TextStyle(color: Colors.black)),
+                                const Icon(Icons.chevron_right_rounded, color: Colors.black),
                               ],
                             ),
                           ),
@@ -261,47 +199,21 @@ class ActivitiesScreen extends StatelessWidget {
     );
   }
 
-  String _getLimitedText(String? text, int maxLength) {
-    if (text == null || text.length <= maxLength) {
-      return text ?? '';
+  String _getTripTypeDisplay(String tripType) {
+    switch (tripType) {
+      case 'airport_private':
+        return 'airport_private'.tr;
+      case 'airport_sharing':
+        return 'airport_sharing'.tr;
+      case 'long_trip':
+        return 'longtrip'.tr;
+      default:
+        return 'Loại chuyến đi không xác định'.tr;
     }
-    return text.substring(0, maxLength) + '...';
   }
 
-  Map<String, dynamic> _getStatusInfo(String? status) {
-    switch (status) {
-      case 'requested':
-        return {
-          'backgroundColor': Colors.blue[100]!,
-          'textColor': Colors.blue,
-          'statusText': 'Đã yêu cầu',
-        };
-      case 'accepted':
-        return {
-          'backgroundColor': Colors.orange[100]!,
-          'textColor': Colors.orange,
-          'statusText': 'Đã chấp nhận',
-        };
-      case 'completed':
-        return {
-          'backgroundColor': Colors.green[100]!,
-          'textColor': Colors.green,
-          'statusText': 'Hoàn thành',
-        };
-      case 'cancelled':
-        return {
-          'backgroundColor': Colors.red[100]!,
-          'textColor': Colors.red,
-          'statusText': 'Đã hủy',
-        };
-      default:
-        return {
-          'backgroundColor': Colors.grey[100]!,
-          'textColor': Colors.grey,
-          'statusText': 'Không xác định',
-        };
-    }
-  }
+
+
 
 
 }
