@@ -1,6 +1,6 @@
 # Airport Booking Car App - Driver Side
 
-A mobile application developed with Flutter, designed for drivers to manage airport ride bookings effectively.
+A mobile application developed with Flutter.
 
 ## Introduction
 
