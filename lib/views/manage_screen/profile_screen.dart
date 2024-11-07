@@ -65,7 +65,7 @@ class MyProfileScreen extends StatelessWidget {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
                                   child: Image.asset(
-                                    meme,
+                                    avatar,
                                     fit: BoxFit.cover,
                                     height: 60,
                                     width: 60,
@@ -249,7 +249,7 @@ class MyProfileScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Image.asset(
-                    ic_edit,
+                    icEdit,
                     width: 20,
                     height: 20,
                   ),

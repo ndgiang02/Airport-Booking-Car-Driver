@@ -408,32 +408,49 @@ class HomeState extends State<HomeScreen> {
                           var passenger = controller.tripDetails[index];
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Row(
+                            child: InkWell(
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(20)),
+                                  ),
+                                  builder: (BuildContext context) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: tripDetail(index),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
                                     children: [
                                       CircleAvatar(
                                         radius: 20,
                                         backgroundColor:
-                                            Colors.blueAccent.withOpacity(0.1),
+                                        Colors.blueAccent.withOpacity(0.1),
                                         child: const Icon(Icons.person,
                                             color: Colors.blueAccent),
                                       ),
                                       const SizedBox(width: 10),
                                       Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             passenger['name'],
                                             style: CustomTextStyles.normal,
                                           ),
                                           Text(
-                                            passenger['from_address'],
-                                            style:
-                                                CustomTextStyles.body.copyWith(
+                                            passenger['from_address'].length > 25
+                                                ? '${passenger['from_address'].substring(0, 25)}...'
+                                                : passenger['from_address'],
+                                            style: CustomTextStyles.body.copyWith(
                                               fontSize: 12,
                                               color: Colors.grey[700],
                                             ),
@@ -444,80 +461,55 @@ class HomeState extends State<HomeScreen> {
                                       ),
                                     ],
                                   ),
-                                ),
-                                const SizedBox(width: 10,),
-                                Flexible(
-                                  child: InkWell(
-                                    onTap: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                              top: Radius.circular(20)),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.withOpacity(0.1),
+                                          shape: BoxShape.circle,
                                         ),
-                                        builder: (BuildContext context) {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(16.0),
-                                            child: tripDetail(index),
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color:
-                                                Colors.green.withOpacity(0.1),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: IconButton(
-                                            icon: const Icon(Icons.phone,
-                                                color: Colors.green),
-                                            iconSize: 17,
-                                            onPressed: () {
-                                              final phoneNumber =
-                                                  passenger['mobile'];
-                                              final encodedPhoneNumber =
-                                                  phoneNumber.replaceFirst(
-                                                      "+", "%2B");
-                                              launchUrl(Uri.parse(
-                                                  "tel://$encodedPhoneNumber"));
-                                            },
-                                          ),
+                                        child: IconButton(
+                                          icon: const Icon(Icons.phone,
+                                              color: Colors.green),
+                                          iconSize: 20,
+                                          onPressed: () {
+                                            final phoneNumber =
+                                            passenger['mobile'];
+                                            final encodedPhoneNumber = phoneNumber
+                                                .replaceFirst("+", "%2B");
+                                            launchUrl(Uri.parse(
+                                                "tel://$encodedPhoneNumber"));
+                                          },
                                         ),
-                                        const SizedBox(width: 10),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.blue.withOpacity(0.1),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: IconButton(
-                                            icon: const Icon(Icons.message,
-                                                color: Colors.blue),
-                                            iconSize: 17,
-                                            onPressed: () async {
-                                              String phoneNumber =
-                                                  passenger['mobile'];
-                                              String smsUrl =
-                                                  'sms:$phoneNumber';
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          icon: const Icon(Icons.message,
+                                              color: Colors.blue),
+                                          iconSize: 20,
+                                          onPressed: () async {
+                                            String phoneNumber =
+                                            passenger['mobile'];
+                                            Uri smsUri =
+                                            Uri.parse('sms:$phoneNumber');
 
-                                              Uri smsUri = Uri.parse(smsUrl);
-
-                                              if (await canLaunchUrl(smsUri)) {
-                                                await launchUrl(smsUri);
-                                              } else {
-                                                log('Could not launch $smsUrl');
-                                              }
-                                            },
-                                          ),
+                                            if (await canLaunchUrl(smsUri)) {
+                                              await launchUrl(smsUri);
+                                            } else {
+                                              log('Could not launch $smsUri');
+                                            }
+                                          },
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           );
                         },
@@ -656,86 +648,104 @@ class HomeState extends State<HomeScreen> {
                           var passenger = controller.tripDetails[index];
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 20,
-                                      backgroundColor:
-                                          Colors.blueAccent.withOpacity(0.1),
-                                      child: const Icon(Icons.person,
-                                          color: Colors.blueAccent),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          passenger['name'],
-                                          style: CustomTextStyles.normal,
-                                        ),
-                                        Text(
-                                          passenger['to_address'],
-                                          style: CustomTextStyles.body.copyWith(
-                                            fontSize: 12,
-                                            color: Colors.grey[700],
+                            child: InkWell(
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(20)),
+                                  ),
+                                  builder: (BuildContext context) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: tripDetail(index),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 20,
+                                        backgroundColor:
+                                            Colors.blueAccent.withOpacity(0.1),
+                                        child: const Icon(Icons.person,
+                                            color: Colors.blueAccent),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            passenger['name'],
+                                            style: CustomTextStyles.normal,
                                           ),
+                                          Text(
+                                            passenger['to_address'],
+                                            style: CustomTextStyles.body.copyWith(
+                                              fontSize: 12,
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.withOpacity(0.1),
+                                          shape: BoxShape.circle,
                                         ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.withOpacity(0.1),
-                                        shape: BoxShape.circle,
+                                        child: IconButton(
+                                          icon: const Icon(Icons.phone,
+                                              color: Colors.green),
+                                          iconSize: 20,
+                                          onPressed: () {
+                                            final phoneNumber =
+                                                passenger['mobile'];
+                                            final encodedPhoneNumber = phoneNumber
+                                                .replaceFirst("+", "%2B");
+                                            launchUrl(Uri.parse(
+                                                "tel://$encodedPhoneNumber"));
+                                          },
+                                        ),
                                       ),
-                                      child: IconButton(
-                                        icon: const Icon(Icons.phone,
-                                            color: Colors.green),
-                                        iconSize: 20,
-                                        onPressed: () {
-                                          final phoneNumber =
-                                              passenger['mobile'];
-                                          final encodedPhoneNumber = phoneNumber
-                                              .replaceFirst("+", "%2B");
-                                          launchUrl(Uri.parse(
-                                              "tel://$encodedPhoneNumber"));
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: IconButton(
-                                        icon: const Icon(Icons.message,
-                                            color: Colors.blue),
-                                        iconSize: 20,
-                                        onPressed: () async {
-                                          String phoneNumber =
-                                              passenger['mobile'];
-                                          Uri smsUri =
-                                              Uri.parse('sms:$phoneNumber');
+                                      const SizedBox(width: 10),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          icon: const Icon(Icons.message,
+                                              color: Colors.blue),
+                                          iconSize: 20,
+                                          onPressed: () async {
+                                            String phoneNumber =
+                                                passenger['mobile'];
+                                            Uri smsUri =
+                                                Uri.parse('sms:$phoneNumber');
 
-                                          if (await canLaunchUrl(smsUri)) {
-                                            await launchUrl(smsUri);
-                                          } else {
-                                            log('Could not launch $smsUri');
-                                          }
-                                        },
+                                            if (await canLaunchUrl(smsUri)) {
+                                              await launchUrl(smsUri);
+                                            } else {
+                                              log('Could not launch $smsUri');
+                                            }
+                                          },
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },

@@ -26,7 +26,7 @@ class VehicleScreen extends StatelessWidget {
         child: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage(login_background),
+              image: AssetImage(loginBackground),
               fit: BoxFit.cover,
             ),
           ),
@@ -252,7 +252,7 @@ class VehicleScreen extends StatelessWidget {
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(login_background),
+            image: AssetImage(loginBackground),
             fit: BoxFit.cover,
           ),
         ),

@@ -112,7 +112,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Image.asset(
-                    ic_edit,
+                    icEdit,
                     width: 20,
                     height: 20,
                   ),

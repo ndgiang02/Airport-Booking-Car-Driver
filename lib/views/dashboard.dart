@@ -129,12 +129,12 @@ class Dashboard extends StatelessWidget {
           if (index == 0) {
             return UserAccountsDrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.tealAccent.withOpacity(0.2),
+                color: Colors.lightBlueAccent.withOpacity(0.2),
               ),
               currentAccountPicture: ClipOval(
                 child: Container(
                   color: Colors.black.withOpacity(0.2),
-                  child: const Image(image: AssetImage(meme)),
+                  child: const Image(image: AssetImage(avatar)),
                 ),
               ),
               accountName: Text(
@@ -153,7 +153,7 @@ class Dashboard extends StatelessWidget {
               child: Text(
                 '${'version'.tr}: ${Constant.appVersion}',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 14),
               ),
             );
           }
